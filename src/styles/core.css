@@ -1,0 +1,97 @@
+#gl-cc-dropdown.gl-cc-dropdown {
+  --gcc-bg: #ffffff;
+  --gcc-border: #d1d9e0;
+  --gcc-text: #1f2328;
+  --gcc-muted: #57606a;
+  --gcc-hover: #f3f4f6;
+  --gcc-active: #e7eefc;
+  --gcc-accent: #2563eb;
+
+  position: fixed;
+  z-index: 2147483647;
+  min-width: 320px;
+  max-width: 420px;
+  max-height: 360px;
+  overflow: hidden;
+  border: 1px solid var(--gcc-border);
+  border-radius: 10px;
+  background: var(--gcc-bg);
+  color: var(--gcc-text);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+  font-family: var(--gcc-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+#gl-cc-dropdown .gl-cc-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(87, 96, 106, 0.55) transparent;
+}
+
+#gl-cc-dropdown .gl-cc-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+#gl-cc-dropdown .gl-cc-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#gl-cc-dropdown .gl-cc-list::-webkit-scrollbar-thumb {
+  background: rgba(87, 96, 106, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+#gl-cc-dropdown .gl-cc-list:hover::-webkit-scrollbar-thumb {
+  background: rgba(87, 96, 106, 0.55);
+  background-clip: padding-box;
+}
+
+#gl-cc-dropdown .gl-cc-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#gl-cc-dropdown .gl-cc-item:hover {
+  background: var(--gcc-hover);
+}
+
+#gl-cc-dropdown .gl-cc-item.active {
+  background: var(--gcc-active);
+}
+
+#gl-cc-dropdown .gl-cc-item.selected .gl-cc-marker {
+  color: var(--gcc-accent);
+}
+
+#gl-cc-dropdown .gl-cc-marker {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gcc-text);
+}
+
+#gl-cc-dropdown .gl-cc-checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 1px 0 0;
+  background-color: #ffffff;
+  color-scheme: light;
+  accent-color: var(--gcc-accent);
+  cursor: pointer;
+  align-self: start;
+}
+
+#gl-cc-dropdown .gl-cc-description {
+  grid-column: 2;
+  font-size: 12px;
+  color: var(--gcc-muted);
+}

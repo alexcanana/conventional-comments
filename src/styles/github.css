@@ -1,0 +1,10 @@
+#gl-cc-dropdown.gl-cc-dropdown {
+  --gcc-bg: #ffffff;
+  --gcc-border: #d0d7de;
+  --gcc-text: #24292f;
+  --gcc-muted: #57606a;
+  --gcc-hover: #f6f8fa;
+  --gcc-active: #ddf4ff;
+  --gcc-accent: #0969da;
+  --gcc-font: 'GitLab Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
