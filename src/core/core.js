@@ -150,10 +150,13 @@
 
     const dropdown = createDropdown();
     const state = createRuntimeState(FALLBACK_TRIGGER);
+    let orderLabelsByUsage = DEFAULT_ORDER_LABELS_BY_USAGE;
+    let labelUsageCounts = {};
 
     chrome.storage.sync.get({
       triggerText: FALLBACK_TRIGGER,
-      debugMode: DEFAULT_DEBUG_MODE
+      debugMode: DEFAULT_DEBUG_MODE,
+      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
     }).then((result) => {
       if (typeof result.triggerText === 'string' && result.triggerText.trim() !== '') {
         state.triggerText = result.triggerText.trim();
@@ -161,10 +164,22 @@
         state.triggerText = FALLBACK_TRIGGER;
       }
       debugModeEnabled = Boolean(result.debugMode);
+      orderLabelsByUsage = Boolean(result.orderLabelsByUsage);
     }).catch((error) => {
       state.triggerText = FALLBACK_TRIGGER;
       debugModeEnabled = DEFAULT_DEBUG_MODE;
+      orderLabelsByUsage = DEFAULT_ORDER_LABELS_BY_USAGE;
       logDebug('failed to load trigger/debug settings', error);
+    });
+
+    chrome.storage.local.get({ labelUsageCounts: {} }).then((result) => {
+      if (result.labelUsageCounts && typeof result.labelUsageCounts === 'object') {
+        labelUsageCounts = result.labelUsageCounts;
+      }
+      logDebug('loaded label usage counts', labelUsageCounts);
+    }).catch((error) => {
+      labelUsageCounts = {};
+      logDebug('failed to load label usage counts', error);
     });
 
     function onStorageChanged(changes, areaName) {
@@ -186,17 +201,60 @@
         }
         logDebug('trigger text updated', { triggerText: state.triggerText });
       }
+
+      if (changes.orderLabelsByUsage) {
+        orderLabelsByUsage = Boolean(changes.orderLabelsByUsage.newValue);
+        logDebug('order labels by usage toggled', { orderLabelsByUsage });
+      }
+    }
+
+    function onLocalStorageChanged(changes, areaName) {
+      if (areaName !== 'local' || !changes.labelUsageCounts) {
+        return;
+      }
+
+      const next = changes.labelUsageCounts.newValue;
+      if (next && typeof next === 'object') {
+        labelUsageCounts = next;
+      } else {
+        labelUsageCounts = {};
+      }
+      logDebug('label usage counts updated', labelUsageCounts);
     }
 
     chrome.storage.onChanged.addListener(onStorageChanged);
+    chrome.storage.onChanged.addListener(onLocalStorageChanged);
+
+    function incrementLabelUsage(labelKey) {
+      if (!labelKey) {
+        return;
+      }
+
+      labelUsageCounts[labelKey] = (labelUsageCounts[labelKey] || 0) + 1;
+      chrome.storage.local.set({ labelUsageCounts }).catch((error) => {
+        logDebug('failed to persist label usage counts', error);
+      });
+    }
+
+    function sortLabelsByUsage(labels) {
+      if (!orderLabelsByUsage) {
+        return labels;
+      }
+
+      return labels.slice().sort((a, b) => {
+        const countA = labelUsageCounts[a.key] || 0;
+        const countB = labelUsageCounts[b.key] || 0;
+        return countB - countA;
+      });
+    }
 
     function getFilteredLabels() {
       const filter = state.currentFilter.toLowerCase();
-      if (!filter) {
-        return LABELS;
-      }
+      const filtered = filter
+        ? LABELS.filter((item) => item.key.startsWith(filter))
+        : LABELS;
 
-      return LABELS.filter((item) => item.key.startsWith(filter));
+      return sortLabelsByUsage(filtered);
     }
 
     function getDecorationOptions() {
@@ -290,6 +348,7 @@
       state.currentTextarea.setSelectionRange(caretPosition, caretPosition);
       state.currentTextarea.dispatchEvent(new Event('input', { bubbles: true }));
 
+      incrementLabelUsage(state.selectedLabel);
       hideDropdown();
     }
 
@@ -413,7 +472,10 @@
     window[INSTANCE_KEY] = {
       platformId,
       observer,
-      removeStorageListener: () => chrome.storage.onChanged.removeListener(onStorageChanged),
+      removeStorageListener: () => {
+        chrome.storage.onChanged.removeListener(onStorageChanged);
+        chrome.storage.onChanged.removeListener(onLocalStorageChanged);
+      },
       removeRepositionHandlers: typeof removeRepositionHandlers === 'function' ? removeRepositionHandlers : undefined
     };
   }

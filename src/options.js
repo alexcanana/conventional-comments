@@ -7,11 +7,15 @@ const version = document.getElementById('version');
 const triggerError = document.getElementById('trigger-text-error');
 const originsError = document.getElementById('allowed-patterns-error');
 const debugModeInput = document.getElementById('debug-mode');
+const orderLabelsByUsageInput = document.getElementById('order-labels-by-usage');
+const resetLabelUsageButton = document.getElementById('reset-label-usage');
+const resetLabelUsageStatus = document.getElementById('reset-label-usage-status');
 
 let savedSettings = {
   allowedUrlPatterns: DEFAULT_PATTERNS,
   triggerText: DEFAULT_TRIGGER,
-  debugMode: DEFAULT_DEBUG_MODE
+  debugMode: DEFAULT_DEBUG_MODE,
+  orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
 };
 
 function getNormalizedHttpsOrigin(value) {
@@ -123,7 +127,8 @@ function getCurrentNormalizedSettings() {
     settings: {
       triggerText,
       allowedUrlPatterns: originsResult.origins,
-      debugMode: Boolean(debugModeInput.checked)
+      debugMode: Boolean(debugModeInput.checked),
+      orderLabelsByUsage: Boolean(orderLabelsByUsageInput.checked)
     }
   };
 }
@@ -133,6 +138,9 @@ function areSettingsEqual(left, right) {
     return false;
   }
   if (Boolean(left.debugMode) !== Boolean(right.debugMode)) {
+    return false;
+  }
+  if (Boolean(left.orderLabelsByUsage) !== Boolean(right.orderLabelsByUsage)) {
     return false;
   }
   if (left.allowedUrlPatterns.length !== right.allowedUrlPatterns.length) {
@@ -162,13 +170,15 @@ async function loadOptions() {
     result = await chrome.storage.sync.get({
       allowedUrlPatterns: DEFAULT_PATTERNS,
       triggerText: DEFAULT_TRIGGER,
-      debugMode: DEFAULT_DEBUG_MODE
+      debugMode: DEFAULT_DEBUG_MODE,
+      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
     });
   } catch (error) {
     result = {
       allowedUrlPatterns: DEFAULT_PATTERNS,
       triggerText: DEFAULT_TRIGGER,
-      debugMode: DEFAULT_DEBUG_MODE
+      debugMode: DEFAULT_DEBUG_MODE,
+      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
     };
   }
 
@@ -182,10 +192,12 @@ async function loadOptions() {
   textarea.value = allowedUrlPatterns.join('\n');
   triggerInput.value = triggerText;
   debugModeInput.checked = Boolean(result.debugMode);
+  orderLabelsByUsageInput.checked = Boolean(result.orderLabelsByUsage);
   savedSettings = {
     triggerText,
     allowedUrlPatterns,
-    debugMode: Boolean(result.debugMode)
+    debugMode: Boolean(result.debugMode),
+    orderLabelsByUsage: Boolean(result.orderLabelsByUsage)
   };
   updateSaveState();
 }
@@ -207,13 +219,14 @@ async function saveOptions() {
     return;
   }
 
-  const { allowedUrlPatterns, triggerText, debugMode } = evaluation.settings;
+  const { allowedUrlPatterns, triggerText, debugMode, orderLabelsByUsage } = evaluation.settings;
 
   try {
     await chrome.storage.sync.set({
       allowedUrlPatterns,
       triggerText,
-      debugMode
+      debugMode,
+      orderLabelsByUsage
     });
   } catch (error) {
     setStatus('Save failed', 'error');
@@ -223,7 +236,8 @@ async function saveOptions() {
   textarea.value = allowedUrlPatterns.join('\n');
   triggerInput.value = triggerText;
   debugModeInput.checked = Boolean(debugMode);
-  savedSettings = { triggerText, allowedUrlPatterns, debugMode: Boolean(debugMode) };
+  orderLabelsByUsageInput.checked = Boolean(orderLabelsByUsage);
+  savedSettings = { triggerText, allowedUrlPatterns, debugMode: Boolean(debugMode), orderLabelsByUsage: Boolean(orderLabelsByUsage) };
   updateSaveState();
   setStatus('Saved', 'success');
 }
@@ -233,7 +247,8 @@ async function clearOptions() {
     await chrome.storage.sync.set({
       allowedUrlPatterns: DEFAULT_PATTERNS,
       triggerText: DEFAULT_TRIGGER,
-      debugMode: DEFAULT_DEBUG_MODE
+      debugMode: DEFAULT_DEBUG_MODE,
+      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
     });
   } catch (error) {
     setStatus('Reset failed', 'error');
@@ -243,10 +258,12 @@ async function clearOptions() {
   textarea.value = DEFAULT_PATTERNS.join('\n');
   triggerInput.value = DEFAULT_TRIGGER;
   debugModeInput.checked = DEFAULT_DEBUG_MODE;
+  orderLabelsByUsageInput.checked = DEFAULT_ORDER_LABELS_BY_USAGE;
   savedSettings = {
     triggerText: DEFAULT_TRIGGER,
     allowedUrlPatterns: DEFAULT_PATTERNS,
-    debugMode: DEFAULT_DEBUG_MODE
+    debugMode: DEFAULT_DEBUG_MODE,
+    orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
   };
   setFieldError(triggerInput, triggerError, '');
   setFieldError(textarea, originsError, '');
@@ -255,11 +272,46 @@ async function clearOptions() {
   setStatus('Reset to defaults', 'success');
 }
 
+async function resetLabelUsage() {
+  try {
+    await chrome.storage.local.set({ labelUsageCounts: {} });
+  } catch (error) {
+    setResetLabelUsageStatus('Reset failed', 'error');
+    return;
+  }
+
+  setResetLabelUsageStatus('Label usage reset', 'success');
+}
+
+function setResetLabelUsageStatus(message, type) {
+  resetLabelUsageStatus.textContent = message;
+  resetLabelUsageStatus.classList.remove('status--success', 'status--error');
+
+  if (type === 'error') {
+    resetLabelUsageStatus.classList.add('status--error');
+  } else {
+    resetLabelUsageStatus.classList.add('status--success');
+  }
+
+  if (!message) {
+    return;
+  }
+
+  const timeoutMs = type === 'error' ? 5000 : 1500;
+  window.setTimeout(() => {
+    if (resetLabelUsageStatus.textContent === message) {
+      resetLabelUsageStatus.textContent = '';
+    }
+  }, timeoutMs);
+}
+
 saveButton.addEventListener('click', () => saveOptions());
 resetButton.addEventListener('click', () => clearOptions());
+resetLabelUsageButton.addEventListener('click', () => resetLabelUsage());
 triggerInput.addEventListener('input', () => updateSaveState());
 textarea.addEventListener('input', () => updateSaveState());
 debugModeInput.addEventListener('change', () => updateSaveState());
+orderLabelsByUsageInput.addEventListener('change', () => updateSaveState());
 
 loadOptions();
 

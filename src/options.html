@@ -31,6 +31,16 @@
         aria-describedby="origins-help allowed-patterns-error"></textarea>
       <p id="allowed-patterns-error" class="field-error" aria-live="polite"></p>
 
+      <label for="order-labels-by-usage" class="settings__label">Label ordering</label>
+      <label for="order-labels-by-usage" class="checkbox-row">
+        <input id="order-labels-by-usage" type="checkbox" aria-describedby="order-labels-by-usage-help" />
+        <span id="order-labels-by-usage-help" class="field-help">Order labels by most used. Counts are stored locally on this browser only.</span>
+      </label>
+      <div class="actions actions--inline">
+        <button id="reset-label-usage" type="button" class="button button--secondary button--small">Reset label usage</button>
+        <span id="reset-label-usage-status" aria-live="polite" aria-atomic="true" role="status"></span>
+      </div>
+
       <label for="debug-mode" class="settings__label">Debug mode</label>
       <label for="debug-mode" class="checkbox-row">
         <input id="debug-mode" type="checkbox" aria-describedby="debug-mode-help" />
