@@ -13,14 +13,21 @@
     'textarea[name="pull_request_review_comment[body]"]',
     'textarea[name="pull_request_review_thread[body]"]',
     // New PRC markdown editors.
+    // NOTE: hashed class may change across GitHub deploys; the aria-label
+    // and data-testid selectors below act as stable fallbacks.
     'textarea.prc-Textarea-TextArea-snlco',
-    'textarea[aria-label="Markdown value"]'
+    'textarea[aria-label="Markdown value"]',
+    'textarea[data-testid="markdown-editor-input"]'
   ];
   const GITHUB_COMMENT_CONTAINER_SELECTORS = [
     '[data-inline-markers]',
     '[data-marker-navigation-new-thread]',
     '[data-testid="markdown-editor-footer"]',
+    '[data-testid="markdown-editor"]',
+    // NOTE: hashed class may change across GitHub deploys; the data-testid
+    // selectors above act as stable fallbacks.
     '.MarkdownEditor-module__container__H4O8J',
+    '[class*="MarkdownEditor-module__container"]',
     '.js-inline-comment-form',
     '.review-comment',
     '.review-thread'

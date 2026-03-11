@@ -229,10 +229,6 @@ async function saveOptions() {
 }
 
 async function clearOptions() {
-  textarea.value = DEFAULT_PATTERNS.join('\n');
-  triggerInput.value = DEFAULT_TRIGGER;
-  debugModeInput.checked = DEFAULT_DEBUG_MODE;
-
   try {
     await chrome.storage.sync.set({
       allowedUrlPatterns: DEFAULT_PATTERNS,
@@ -244,6 +240,9 @@ async function clearOptions() {
     return;
   }
 
+  textarea.value = DEFAULT_PATTERNS.join('\n');
+  triggerInput.value = DEFAULT_TRIGGER;
+  debugModeInput.checked = DEFAULT_DEBUG_MODE;
   savedSettings = {
     triggerText: DEFAULT_TRIGGER,
     allowedUrlPatterns: DEFAULT_PATTERNS,

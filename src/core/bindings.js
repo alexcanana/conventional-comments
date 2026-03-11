@@ -96,6 +96,11 @@
   function installRepositionHandlers(onReposition) {
     window.addEventListener('scroll', onReposition, true);
     window.addEventListener('resize', onReposition);
+
+    return function removeRepositionHandlers() {
+      window.removeEventListener('scroll', onReposition, true);
+      window.removeEventListener('resize', onReposition);
+    };
   }
 
   window.GCC_BINDING_UTILS = {

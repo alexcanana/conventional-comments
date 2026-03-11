@@ -118,6 +118,12 @@
       visibleRows
     } = options;
 
+    if (items.length === 0) {
+      dropdown.hidden = true;
+      dropdown.innerHTML = '';
+      return 0;
+    }
+
     const nextActiveIndex = ((activeIndex % items.length) + items.length) % items.length;
 
     const listMarkup = items.map((item, index) => {

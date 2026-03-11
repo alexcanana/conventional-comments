@@ -135,6 +135,19 @@
       return;
     }
 
+    if (existing) {
+      if (existing.observer) {
+        existing.observer.disconnect();
+      }
+      if (typeof existing.removeStorageListener === 'function') {
+        existing.removeStorageListener();
+      }
+      if (typeof existing.removeRepositionHandlers === 'function') {
+        existing.removeRepositionHandlers();
+      }
+      delete window[INSTANCE_KEY];
+    }
+
     const dropdown = createDropdown();
     const state = createRuntimeState(FALLBACK_TRIGGER);
 
@@ -154,14 +167,28 @@
       logDebug('failed to load trigger/debug settings', error);
     });
 
-    chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName !== 'sync' || !changes.debugMode) {
+    function onStorageChanged(changes, areaName) {
+      if (areaName !== 'sync') {
         return;
       }
 
-      debugModeEnabled = Boolean(changes.debugMode.newValue);
-      logDebug('debug mode toggled', { debugModeEnabled });
-    });
+      if (changes.debugMode) {
+        debugModeEnabled = Boolean(changes.debugMode.newValue);
+        logDebug('debug mode toggled', { debugModeEnabled });
+      }
+
+      if (changes.triggerText) {
+        const next = changes.triggerText.newValue;
+        if (typeof next === 'string' && next.trim() !== '') {
+          state.triggerText = next.trim();
+        } else {
+          state.triggerText = FALLBACK_TRIGGER;
+        }
+        logDebug('trigger text updated', { triggerText: state.triggerText });
+      }
+    }
+
+    chrome.storage.onChanged.addListener(onStorageChanged);
 
     function getFilteredLabels() {
       const filter = state.currentFilter.toLowerCase();
@@ -377,7 +404,7 @@
 
     const observer = installObserverUtil(textareaSelector, bindTextareaForPlatform);
 
-    installRepositionHandlersUtil(() => {
+    const removeRepositionHandlers = installRepositionHandlersUtil(() => {
       if (state.currentTextarea && !dropdown.hidden) {
         positionDropdown(dropdown, state.currentTextarea, state.anchorPosition);
       }
@@ -385,7 +412,9 @@
 
     window[INSTANCE_KEY] = {
       platformId,
-      observer
+      observer,
+      removeStorageListener: () => chrome.storage.onChanged.removeListener(onStorageChanged),
+      removeRepositionHandlers: typeof removeRepositionHandlers === 'function' ? removeRepositionHandlers : undefined
     };
   }
 
