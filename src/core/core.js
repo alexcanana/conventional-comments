@@ -173,12 +173,18 @@
     });
 
     chrome.storage.local.get({ labelUsageCounts: {} }).then((result) => {
-      if (result.labelUsageCounts && typeof result.labelUsageCounts === 'object') {
-        labelUsageCounts = result.labelUsageCounts;
-      }
+      const loaded = result.labelUsageCounts && typeof result.labelUsageCounts === 'object'
+        ? result.labelUsageCounts
+        : {};
+
+      Object.keys(loaded).forEach((key) => {
+        const loadedCount = Number(loaded[key]) || 0;
+        const memoryCount = labelUsageCounts[key] || 0;
+        labelUsageCounts[key] = Math.max(loadedCount, memoryCount);
+      });
+
       logDebug('loaded label usage counts', labelUsageCounts);
     }).catch((error) => {
-      labelUsageCounts = {};
       logDebug('failed to load label usage counts', error);
     });
 
@@ -215,9 +221,26 @@
 
       const next = changes.labelUsageCounts.newValue;
       if (next && typeof next === 'object') {
-        labelUsageCounts = next;
+        const allKeys = new Set(Object.keys(labelUsageCounts).concat(Object.keys(next)));
+        allKeys.forEach((key) => {
+          const incoming = Number(next[key]) || 0;
+          const current = labelUsageCounts[key] || 0;
+          if (incoming >= current) {
+            labelUsageCounts[key] = incoming;
+          }
+        });
+
+        // Remove keys that were cleared (e.g. by reset).
+        Object.keys(labelUsageCounts).forEach((key) => {
+          if (!(key in next)) {
+            delete labelUsageCounts[key];
+          }
+        });
       } else {
-        labelUsageCounts = {};
+        // Storage was cleared (e.g. reset button).
+        Object.keys(labelUsageCounts).forEach((key) => {
+          delete labelUsageCounts[key];
+        });
       }
       logDebug('label usage counts updated', labelUsageCounts);
     }
@@ -231,7 +254,10 @@
       }
 
       labelUsageCounts[labelKey] = (labelUsageCounts[labelKey] || 0) + 1;
-      chrome.storage.local.set({ labelUsageCounts }).catch((error) => {
+      logDebug('incrementing label usage', { labelKey, count: labelUsageCounts[labelKey] });
+
+      const snapshot = Object.assign({}, labelUsageCounts);
+      chrome.storage.local.set({ labelUsageCounts: snapshot }).catch((error) => {
         logDebug('failed to persist label usage counts', error);
       });
     }
@@ -342,13 +368,15 @@
         : `${state.selectedLabel}: `;
       const nextValue = `${prefix}${insertion}${suffix}`;
 
+      const chosenLabel = state.selectedLabel;
+
       state.currentTextarea.value = nextValue;
       const caretPosition = prefix.length + insertion.length;
       state.currentTextarea.focus();
       state.currentTextarea.setSelectionRange(caretPosition, caretPosition);
       state.currentTextarea.dispatchEvent(new Event('input', { bubbles: true }));
 
-      incrementLabelUsage(state.selectedLabel);
+      incrementLabelUsage(chosenLabel);
       hideDropdown();
     }
 
