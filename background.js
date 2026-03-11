@@ -162,6 +162,7 @@ async function injectIntoTab(tabId, url) {
         'src/core/render.js',
         'src/core/bindings.js',
         'src/core/core.js',
+        'src/platforms/helpers.js',
         `src/platforms/${platform}.js`,
         'src/content.js'
       ]
