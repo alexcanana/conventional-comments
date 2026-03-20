@@ -17,7 +17,8 @@
 
     <section class="card">
       <label for="trigger-text">Trigger text</label>
-      <p class="field-help" id="trigger-help">Set the keyword used to trigger label suggestions (for example, <code>cc</code>).
+      <p class="field-help" id="trigger-help">Set the keyword used to trigger label suggestions (for example,
+        <code>cc</code>).
       </p>
       <input id="trigger-text" type="text" maxlength="20" placeholder="cc" required aria-required="true"
         aria-describedby="trigger-help trigger-text-error" />
@@ -27,24 +28,27 @@
       <p class="field-help" id="origins-help">Allow exact HTTPS origins only. One origin per line.</p>
       <p class="field-help">No wildcards, no paths, HTTPS only.</p>
       <textarea id="allowed-patterns" rows="10" spellcheck="false"
-        placeholder="https://gitlab.com&#10;https://github.com&#10;https://gitlab.example.com"
+        placeholder="https://github.com&#10;https://gitlab.com&#10;https://gitlab.example.com"
         aria-describedby="origins-help allowed-patterns-error"></textarea>
       <p id="allowed-patterns-error" class="field-error" aria-live="polite"></p>
 
       <label for="order-labels-by-usage" class="settings__label">Label ordering</label>
       <label for="order-labels-by-usage" class="checkbox-row">
         <input id="order-labels-by-usage" type="checkbox" aria-describedby="order-labels-by-usage-help" />
-        <span id="order-labels-by-usage-help" class="field-help">Order labels by most used. Counts are stored locally on this browser only.</span>
+        <span id="order-labels-by-usage-help" class="field-help">Order labels by most used. Counts are stored locally on
+          this browser only.</span>
       </label>
       <div class="actions actions--inline">
-        <button id="reset-label-usage" type="button" class="button button--secondary button--small">Reset label usage</button>
+        <button id="reset-label-usage" type="button" class="button button--secondary button--small">Reset label
+          usage</button>
         <span id="reset-label-usage-status" aria-live="polite" aria-atomic="true" role="status"></span>
       </div>
 
       <label for="debug-mode" class="settings__label">Debug mode</label>
       <label for="debug-mode" class="checkbox-row">
         <input id="debug-mode" type="checkbox" aria-describedby="debug-mode-help" />
-        <span id="debug-mode-help" class="field-help">Enable console logs for troubleshooting injection and editor matching issues.</span>
+        <span id="debug-mode-help" class="field-help">Enable console logs for troubleshooting injection and editor
+          matching issues.</span>
       </label>
 
       <div class="actions">

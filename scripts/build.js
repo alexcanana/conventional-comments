@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-/**
- * Copy extension sources into dist/, merge manifests per target, zip (same flow as multi-pass).
- * @see https://github.com/M4n0x/multi-pass/blob/main/scripts/build.js
- */
 
 const fs = require("fs/promises");
 const path = require("path");

@@ -1,6 +1,6 @@
 (function registerSharedDefaults() {
   var shared = globalThis.GCC_SHARED || {
-    DEFAULT_PATTERNS: ['https://gitlab.com', 'https://github.com'],
+    DEFAULT_PATTERNS: ['https://github.com', 'https://gitlab.com'],
     DEFAULT_TRIGGER: 'cc',
     DEFAULT_DEBUG_MODE: false,
     DEFAULT_ORDER_LABELS_BY_USAGE: false
