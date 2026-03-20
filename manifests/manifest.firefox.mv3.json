@@ -3,8 +3,8 @@
     "service_worker": null,
     "type": null,
     "scripts": [
-      "src/shared.js",
-      "src/core/routes.js",
+      "shared.js",
+      "core/routes.js",
       "background.js"
     ]
   },

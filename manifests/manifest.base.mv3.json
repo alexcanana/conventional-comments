@@ -10,18 +10,17 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://*/*",
-    "http://*/*"
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
   },
-  "options_page": "src/options.html",
+  "options_page": "options.html",
   "action": {
     "default_title": "Conventional Comments"
   },
   "icons": {
-    "48": "src/icons/icon-48.png",
-    "128": "src/icons/icon-128.png"
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   }
 }

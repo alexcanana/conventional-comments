@@ -1,7 +1,7 @@
 // MV3: Chromium uses a single service worker and loads deps via importScripts.
 // Firefox MV3 uses background.scripts (see manifests/manifest.firefox.mv3.json); deps run first.
 if (typeof importScripts === 'function' && !globalThis.GCC_ROUTES) {
-  importScripts('src/shared.js', 'src/core/routes.js');
+  importScripts('shared.js', 'core/routes.js');
 }
 
 const routes = globalThis.GCC_ROUTES || {};
@@ -145,7 +145,7 @@ async function injectIntoTab(tabId, url) {
   try {
     await chrome.scripting.insertCSS({
       target: { tabId },
-      files: ['src/styles/core.css', `src/styles/${platform}.css`]
+      files: ['styles/core.css', `styles/${platform}.css`]
     });
   } catch (error) {
     logError('css injection failed', error);
@@ -156,18 +156,18 @@ async function injectIntoTab(tabId, url) {
     await chrome.scripting.executeScript({
       target: { tabId },
       files: [
-        'src/shared.js',
-        'src/core/routes.js',
-        'src/core/constants.js',
-        'src/core/trigger.js',
-        'src/core/position.js',
-        'src/core/state.js',
-        'src/core/render.js',
-        'src/core/bindings.js',
-        'src/core/core.js',
-        'src/platforms/helpers.js',
-        `src/platforms/${platform}.js`,
-        'src/content.js'
+        'shared.js',
+        'core/routes.js',
+        'core/constants.js',
+        'core/trigger.js',
+        'core/position.js',
+        'core/state.js',
+        'core/render.js',
+        'core/bindings.js',
+        'core/core.js',
+        'platforms/helpers.js',
+        `platforms/${platform}.js`,
+        'content.js'
       ]
     });
     executed = true;
