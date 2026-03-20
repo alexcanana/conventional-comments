@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -56,13 +56,13 @@ jobs:
         run: node scripts/build.js
 
       - name: Upload Chromium bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: conventional-comments-chromium
           path: dist/conventional-comments-chromium-v*.zip
 
       - name: Upload Firefox MV3 bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: conventional-comments-firefox-mv3
           path: dist/conventional-comments-firefox-mv3-v*.zip
