@@ -1,5 +1,7 @@
-importScripts('src/shared.js');
-importScripts('src/core/routes.js');
+// MV3 service worker (Chrome, Edge, Firefox): load shared deps once via importScripts.
+if (typeof importScripts === 'function') {
+  importScripts('src/shared.js', 'src/core/routes.js');
+}
 
 const routes = globalThis.GCC_ROUTES || {};
 const GITLAB_MERGE_REQUEST_PATH_RE = routes.GITLAB_MERGE_REQUEST_PATH_RE || /\/-\/merge_requests\/\d+(?:\/diffs)?(?:\/.*)?$/;

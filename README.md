@@ -1,6 +1,16 @@
 # Conventional Comments for GitLab and GitHub
 
-Chrome extension that adds conventional comment label/decorator autocomplete for GitLab merge requests and GitHub pull requests.
+Browser extension (Chrome, Edge, Firefox) that adds conventional comment label/decorator autocomplete for GitLab merge requests and GitHub pull requests.
+
+## Firefox
+
+Use a recent Firefox (121+). Like Chrome, MV3 uses a single `background.service_worker`; shared code is loaded from that file via `importScripts`.
+
+1. Clone or unpack this repository.
+2. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on**.
+3. Choose the project’s `manifest.json`.
+
+For a permanent add-on id when publishing to [addons.mozilla.org](https://addons.mozilla.org/), change `browser_specific_settings.gecko.id` in `manifest.json` to your reserved id.
 
 ## Configuration
 
@@ -12,6 +22,7 @@ Chrome extension that adds conventional comment label/decorator autocomplete for
 
 ## Unreleased
 
+- Firefox MV3: `browser_specific_settings.gecko` (Chrome-compatible `service_worker` background only)
 - split core runtime responsibilities into dedicated state, render, and bindings modules
 - reduce dropdown/observer overhead with delegated handlers and earlier DOM short-circuiting
 - improve dropdown accessibility with stable option IDs and `aria-activedescendant`
