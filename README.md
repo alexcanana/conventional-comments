@@ -31,7 +31,7 @@ Requires [Node.js](https://nodejs.org/) and a `zip` command (common on macOS and
 npm run build
 ```
 
-This copies sources into `dist/chromium` and `dist/firefox-mv3`, merges manifests from `manifests/`, and writes versioned zips in `dist/`, for example `conventional-comments-chromium-v0.2.1.zip` and `conventional-comments-firefox-mv3-v0.2.1.zip`.
+This copies sources into `dist/chromium` and `dist/firefox-mv3`, merges manifests from `manifests/`, and writes versioned zips in `dist/`, for example `conventional-comments-chromium-v0.1.0.zip` and `conventional-comments-firefox-mv3-v0.1.0.zip`.
 
 Single target:
 

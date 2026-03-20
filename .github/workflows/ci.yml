@@ -68,10 +68,7 @@ jobs:
           path: dist/conventional-comments-firefox-mv3-v*.zip
 
       - name: Create release
-        if: >-
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/main' &&
-          steps.bump.outputs.bumped == 'true'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
