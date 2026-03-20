@@ -1,0 +1,24 @@
+{
+  "background": {
+    "service_worker": null,
+    "type": null,
+    "scripts": [
+      "src/shared.js",
+      "src/core/routes.js",
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "conventional-comments@alexcanana.dev",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ],
+        "optional": [],
+        "has_previous_consent": false
+      }
+    }
+  }
+}

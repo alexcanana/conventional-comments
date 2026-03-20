@@ -2,15 +2,54 @@
 
 Browser extension (Chrome, Edge, Firefox) that adds conventional comment label/decorator autocomplete for GitLab merge requests and GitHub pull requests.
 
-## Firefox
+## Repository layout
 
-Use a recent Firefox (121+). Like Chrome, MV3 uses a single `background.service_worker`; shared code is loaded from that file via `importScripts`.
+Aligned with [multi-pass](https://github.com/M4n0x/multi-pass/tree/main):
 
-1. Clone or unpack this repository.
-2. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on**.
-3. Choose the project’s `manifest.json`.
+| Path | Purpose |
+|------|---------|
+| [`src/`](src/) | Unpacked extension sources (`background.js`, nested `src/` for pages/content, …) — like `basic-auth-extension/` in [multi-pass](https://github.com/M4n0x/multi-pass/tree/main) |
+| [`manifests/`](manifests/) | Manifest fragments merged per browser target |
+| [`scripts/build.js`](scripts/build.js) | Copies sources into `dist/`, writes `manifest.json`, zips each target |
+| `dist/` | **Build output** (gitignored): `dist/chromium`, `dist/firefox-mv3`, and versioned `.zip` files |
 
-For a permanent add-on id when publishing to [addons.mozilla.org](https://addons.mozilla.org/), change `browser_specific_settings.gecko.id` in `manifest.json` to your reserved id.
+## Build
+
+From the repo root (requires a `zip` CLI, as on macOS/Linux):
+
+```bash
+npm run build
+```
+
+Artifacts: `dist/chromium/`, `dist/firefox-mv3/`, and zips such as `conventional-comments-chromium-v0.2.1.zip` in `dist/`.
+
+Single target:
+
+```bash
+npm run build:chromium
+npm run build:firefox
+```
+
+## Load the extension locally
+
+After `npm run build`:
+
+- **Chrome / Edge:** Extensions → Developer mode → **Load unpacked** → choose `dist/chromium`.
+- **Firefox:** `about:debugging` → **This Firefox** → **Load Temporary Add-on** → pick `dist/firefox-mv3/manifest.json` (see `strict_min_version` in `manifests/manifest.firefox.mv3.json`).
+
+Chromium uses MV3 `background.service_worker` and loads shared code via `importScripts` in `background.js`. Firefox’s build merges in `background.scripts` (shared + routes + `background.js` in order) because `service_worker` is not used there—same as the pattern in [multi-pass](https://github.com/M4n0x/multi-pass/blob/main/manifests/manifest.firefox.mv3.json).
+
+## Manifest layout
+
+| File | Role |
+|------|------|
+| `manifests/manifest.base.mv3.json` | Shared MV3 fields |
+| `manifests/manifest.chromium.json` | Chromium overlay (empty `{}` today) |
+| `manifests/manifest.firefox.mv3.json` | Firefox: `browser_specific_settings.gecko` and `background.scripts` (replaces `service_worker`) |
+
+Edit those files, then run `npm run build` again.
+
+For a permanent add-on id when publishing to [addons.mozilla.org](https://addons.mozilla.org/), set `browser_specific_settings.gecko.id` in `manifests/manifest.firefox.mv3.json` and rebuild.
 
 ## Configuration
 
@@ -22,6 +61,7 @@ For a permanent add-on id when publishing to [addons.mozilla.org](https://addons
 
 ## Unreleased
 
+- repo layout aligned with multi-pass (`src/` sources, `dist/` builds + zips)
 - Firefox MV3: `browser_specific_settings.gecko` (Chrome-compatible `service_worker` background only)
 - split core runtime responsibilities into dedicated state, render, and bindings modules
 - reduce dropdown/observer overhead with delegated handlers and earlier DOM short-circuiting
@@ -57,7 +97,7 @@ For a permanent add-on id when publishing to [addons.mozilla.org](https://addons
 
 - add storage fallbacks for trigger and allowed patterns
 - harden trigger matching by escaping regex characters
-- reduce unnecessary dropdown reposition work
+- reduce dropdown reposition work
 
 ## 0.1.0
 

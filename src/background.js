@@ -1,5 +1,6 @@
-// MV3 service worker (Chrome, Edge, Firefox): load shared deps once via importScripts.
-if (typeof importScripts === 'function') {
+// MV3: Chromium uses a single service worker and loads deps via importScripts.
+// Firefox MV3 uses background.scripts (see manifests/manifest.firefox.mv3.json); deps run first.
+if (typeof importScripts === 'function' && !globalThis.GCC_ROUTES) {
   importScripts('src/shared.js', 'src/core/routes.js');
 }
 
