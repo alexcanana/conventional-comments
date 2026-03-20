@@ -363,9 +363,10 @@
       const prefix = value.slice(0, state.currentRange.start);
       const suffix = value.slice(state.currentRange.end);
       const decorationsText = getSelectedDecorationsText();
-      const insertion = decorationsText
-        ? `${state.selectedLabel} (${decorationsText}): `
-        : `${state.selectedLabel}: `;
+      const conventionalHead = decorationsText
+        ? `${state.selectedLabel} (${decorationsText}):`
+        : `${state.selectedLabel}:`;
+      const insertion = `**${conventionalHead}** `;
       const nextValue = `${prefix}${insertion}${suffix}`;
 
       const chosenLabel = state.selectedLabel;
