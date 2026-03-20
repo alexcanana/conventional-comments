@@ -4,7 +4,7 @@ Browser extension (Chrome, Edge, Firefox) that adds conventional comment label/d
 
 ## Firefox
 
-Use a recent Firefox (121+). The manifest lists both `background.service_worker` (Chrome/Edge) and `background.scripts` (Firefox); each browser picks the entry it supports.
+Use a recent Firefox (121+). Like Chrome, MV3 uses a single `background.service_worker`; shared code is loaded from that file via `importScripts`.
 
 1. Clone or unpack this repository.
 2. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on**.
@@ -22,7 +22,7 @@ For a permanent add-on id when publishing to [addons.mozilla.org](https://addons
 
 ## Unreleased
 
-- Firefox MV3: dual `background` entries (`service_worker` + `scripts`) and `browser_specific_settings.gecko`
+- Firefox MV3: `browser_specific_settings.gecko` (Chrome-compatible `service_worker` background only)
 - split core runtime responsibilities into dedicated state, render, and bindings modules
 - reduce dropdown/observer overhead with delegated handlers and earlier DOM short-circuiting
 - improve dropdown accessibility with stable option IDs and `aria-activedescendant`

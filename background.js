@@ -1,4 +1,4 @@
-// Chrome MV3 uses only the service worker entry; Firefox loads `scripts` in order and must not run these twice.
+// MV3 service worker (Chrome, Edge, Firefox): load shared deps once via importScripts.
 if (typeof importScripts === 'function') {
   importScripts('src/shared.js', 'src/core/routes.js');
 }

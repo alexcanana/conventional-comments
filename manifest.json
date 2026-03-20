@@ -20,12 +20,7 @@
     "http://*/*"
   ],
   "background": {
-    "service_worker": "background.js",
-    "scripts": [
-      "src/shared.js",
-      "src/core/routes.js",
-      "background.js"
-    ]
+    "service_worker": "background.js"
   },
   "options_page": "src/options.html",
   "action": {
