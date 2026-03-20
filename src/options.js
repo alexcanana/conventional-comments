@@ -1,3 +1,7 @@
+/**
+ * Options / settings page: tabs, lists (origins, labels, decorations), drag-reorder,
+ * storage sync, and per-section save feedback. Loaded after shared.js (defaults + GCC_CONSTANTS).
+ */
 const originsList = document.getElementById('origins-list');
 const triggerInput = document.getElementById('trigger-text');
 const saveButton = document.getElementById('save');
@@ -36,29 +40,11 @@ async function persistCurrentSettingsQuiet() {
   }
   const s = evaluation.settings;
   try {
-    await chrome.storage.sync.set({
-      allowedUrlPatterns: s.allowedUrlPatterns,
-      triggerText: s.triggerText,
-      debugMode: s.debugMode,
-      orderLabelsByUsage: s.orderLabelsByUsage,
-      showLabelDescriptions: s.showLabelDescriptions,
-      showDecorationDescriptions: s.showDecorationDescriptions,
-      labelsConfig: s.labelsConfig,
-      decorationsConfig: s.decorationsConfig
-    });
+    await chrome.storage.sync.set(syncSettingsWritePayload(s));
   } catch (error) {
     return;
   }
-  savedSettings = {
-    triggerText: s.triggerText,
-    allowedUrlPatterns: s.allowedUrlPatterns.slice(),
-    debugMode: s.debugMode,
-    orderLabelsByUsage: s.orderLabelsByUsage,
-    showLabelDescriptions: s.showLabelDescriptions,
-    showDecorationDescriptions: s.showDecorationDescriptions,
-    labelsConfig: s.labelsConfig.slice(),
-    decorationsConfig: s.decorationsConfig.slice()
-  };
+  savedSettings = snapshotSavedSettingsFromEvaluation(s);
   setOriginsError('');
   setLabelsConfigError('');
   setDecorationsConfigError('');
@@ -299,6 +285,32 @@ function setStatus(message, type = 'success') {
   setSaveFeedback(status, message, type);
 }
 
+function syncSettingsWritePayload(settings) {
+  return {
+    allowedUrlPatterns: settings.allowedUrlPatterns,
+    triggerText: settings.triggerText,
+    debugMode: settings.debugMode,
+    orderLabelsByUsage: settings.orderLabelsByUsage,
+    showLabelDescriptions: settings.showLabelDescriptions,
+    showDecorationDescriptions: settings.showDecorationDescriptions,
+    labelsConfig: settings.labelsConfig,
+    decorationsConfig: settings.decorationsConfig
+  };
+}
+
+function snapshotSavedSettingsFromEvaluation(s) {
+  return {
+    triggerText: s.triggerText,
+    allowedUrlPatterns: s.allowedUrlPatterns.slice(),
+    debugMode: s.debugMode,
+    orderLabelsByUsage: s.orderLabelsByUsage,
+    showLabelDescriptions: s.showLabelDescriptions,
+    showDecorationDescriptions: s.showDecorationDescriptions,
+    labelsConfig: s.labelsConfig.slice(),
+    decorationsConfig: s.decorationsConfig.slice()
+  };
+}
+
 function setFieldError(field, errorElement, message) {
   if (message) {
     field.classList.add('field--error');
@@ -400,26 +412,6 @@ function isTemplateOriginAddEnabled(input) {
     const r = getNormalizedHttpsOrigin(el.value.trim());
     return r.ok && r.origin === result.origin;
   });
-}
-
-function isTemplateLabelAddEnabled(keyInput) {
-  const k = keyInput.value.trim();
-  if (!k || !LABEL_KEY_RE.test(k)) {
-    return false;
-  }
-  const lower = k.toLowerCase();
-  const existingKeys = getLabelRowsFromDom().map((r) => r.key.toLowerCase());
-  return !existingKeys.includes(lower);
-}
-
-function isTemplateDecorationAddEnabled(keyInput) {
-  const k = keyInput.value.trim();
-  if (!k || !LABEL_KEY_RE.test(k)) {
-    return false;
-  }
-  const lower = k.toLowerCase();
-  const existingKeys = getDecorationRowsFromDom().map((r) => r.key.toLowerCase());
-  return !existingKeys.includes(lower);
 }
 
 function refreshOriginsListUi() {
@@ -614,11 +606,11 @@ function parseLabelsConfigFromDom() {
   return { ok: true, labelsConfig: normalized };
 }
 
-function setLabelsKeyFieldError(keyInput, message) {
+function setKeyedRowFieldError(keyInput, errorRowSelector, message) {
   if (!keyInput) {
     return;
   }
-  const errEl = keyInput.closest('.config-field')?.querySelector('.labels-config__key-error');
+  const errEl = keyInput.closest('.config-field')?.querySelector(errorRowSelector);
   if (message) {
     keyInput.classList.add('field--error');
     keyInput.setAttribute('aria-invalid', 'true');
@@ -632,6 +624,10 @@ function setLabelsKeyFieldError(keyInput, message) {
   if (errEl) {
     errEl.textContent = '';
   }
+}
+
+function setLabelsKeyFieldError(keyInput, message) {
+  setKeyedRowFieldError(keyInput, '.labels-config__key-error', message);
 }
 
 function clearLabelsVisualErrors() {
@@ -927,24 +923,17 @@ function initConfigListReorder() {
 }
 
 function refreshLabelsListUi() {
-  const items = labelsConfigList.querySelectorAll('.labels-config__item');
-  items.forEach((row) => {
-    const keyInput = row.querySelector('.labels-config__key');
-    const removeBtn = row.querySelector('.labels-config__remove');
-    const addBtn = row.querySelector('.labels-config__add');
-    const isTemplate = row.classList.contains(LIST_TEMPLATE_CLASS);
-    if (isTemplate) {
-      removeBtn.hidden = true;
-      removeBtn.disabled = true;
-      addBtn.hidden = false;
-      addBtn.disabled = !keyInput || !isTemplateLabelAddEnabled(keyInput);
-    } else {
-      removeBtn.hidden = false;
-      removeBtn.disabled = false;
-      addBtn.hidden = true;
-      addBtn.disabled = true;
-    }
-  });
+  refreshKeyedConfigListUi(
+    labelsConfigList,
+    'labels-config__item',
+    {
+      keyInput: '.labels-config__key',
+      removeBtn: '.labels-config__remove',
+      addBtn: '.labels-config__add'
+    },
+    (keyInput) =>
+      isTemplateKeyAddValid(keyInput, () => getLabelRowsFromDom().map((r) => r.key.toLowerCase()))
+  );
 }
 
 function createLabelConfigRow({ key = '', enabled = true, template = false } = {}) {
@@ -1108,6 +1097,34 @@ function getDecorationRowsFromDom() {
   }));
 }
 
+function isTemplateKeyAddValid(keyInput, getExistingLowercaseKeys) {
+  const k = keyInput.value.trim();
+  if (!k || !LABEL_KEY_RE.test(k)) {
+    return false;
+  }
+  return !getExistingLowercaseKeys().includes(k.toLowerCase());
+}
+
+function refreshKeyedConfigListUi(listRoot, itemClass, selectors, canAddFromTemplateKey) {
+  listRoot.querySelectorAll(`.${itemClass}`).forEach((row) => {
+    const keyInput = row.querySelector(selectors.keyInput);
+    const removeBtn = row.querySelector(selectors.removeBtn);
+    const addBtn = row.querySelector(selectors.addBtn);
+    const isTemplate = row.classList.contains(LIST_TEMPLATE_CLASS);
+    if (isTemplate) {
+      removeBtn.hidden = true;
+      removeBtn.disabled = true;
+      addBtn.hidden = false;
+      addBtn.disabled = !keyInput || !canAddFromTemplateKey(keyInput);
+    } else {
+      removeBtn.hidden = false;
+      removeBtn.disabled = false;
+      addBtn.hidden = true;
+      addBtn.disabled = true;
+    }
+  });
+}
+
 function parseDecorationsConfigFromDom() {
   const rows = getDecorationRowsFromDom();
   const normalized = [];
@@ -1153,23 +1170,7 @@ function parseDecorationsConfigFromDom() {
 }
 
 function setDecorationsKeyFieldError(keyInput, message) {
-  if (!keyInput) {
-    return;
-  }
-  const errEl = keyInput.closest('.config-field')?.querySelector('.decorations-config__key-error');
-  if (message) {
-    keyInput.classList.add('field--error');
-    keyInput.setAttribute('aria-invalid', 'true');
-    if (errEl) {
-      errEl.textContent = message;
-    }
-    return;
-  }
-  keyInput.classList.remove('field--error');
-  keyInput.removeAttribute('aria-invalid');
-  if (errEl) {
-    errEl.textContent = '';
-  }
+  setKeyedRowFieldError(keyInput, '.decorations-config__key-error', message);
 }
 
 function clearDecorationsVisualErrors() {
@@ -1193,24 +1194,17 @@ function setDecorationsConfigError(message) {
 }
 
 function refreshDecorationsListUi() {
-  const items = decorationsConfigList.querySelectorAll('.decorations-config__item');
-  items.forEach((row) => {
-    const keyInput = row.querySelector('.decorations-config__key');
-    const removeBtn = row.querySelector('.decorations-config__remove');
-    const addBtn = row.querySelector('.decorations-config__add');
-    const isTemplate = row.classList.contains(LIST_TEMPLATE_CLASS);
-    if (isTemplate) {
-      removeBtn.hidden = true;
-      removeBtn.disabled = true;
-      addBtn.hidden = false;
-      addBtn.disabled = !keyInput || !isTemplateDecorationAddEnabled(keyInput);
-    } else {
-      removeBtn.hidden = false;
-      removeBtn.disabled = false;
-      addBtn.hidden = true;
-      addBtn.disabled = true;
-    }
-  });
+  refreshKeyedConfigListUi(
+    decorationsConfigList,
+    'decorations-config__item',
+    {
+      keyInput: '.decorations-config__key',
+      removeBtn: '.decorations-config__remove',
+      addBtn: '.decorations-config__add'
+    },
+    (keyInput) =>
+      isTemplateKeyAddValid(keyInput, () => getDecorationRowsFromDom().map((r) => r.key.toLowerCase()))
+  );
 }
 
 function createDecorationConfigRow({ key = '', enabled = true, template = false } = {}) {
@@ -1416,6 +1410,43 @@ function getCurrentNormalizedSettings() {
   };
 }
 
+function abortSaveIfInvalidEvaluation(evaluation) {
+  if (evaluation.originsError) {
+    const inputs = originsList.querySelectorAll('.origins-list__input');
+    const bad =
+      typeof evaluation.invalidRowIndex === 'number' ? inputs[evaluation.invalidRowIndex] : null;
+    bad?.focus();
+    return true;
+  }
+  if (evaluation.labelsError) {
+    const rows = labelsConfigList.querySelectorAll(`.labels-config__item:not(.${LIST_TEMPLATE_CLASS})`);
+    const badKey =
+      typeof evaluation.labelsErrorRowIndex === 'number'
+        ? rows[evaluation.labelsErrorRowIndex]?.querySelector('.labels-config__key')
+        : labelsConfigList.querySelector(`.${LIST_TEMPLATE_CLASS} .labels-config__key`);
+    badKey?.focus();
+    return true;
+  }
+  if (evaluation.decorationsError) {
+    const rows = decorationsConfigList.querySelectorAll(
+      `.decorations-config__item:not(.${LIST_TEMPLATE_CLASS})`
+    );
+    const badKey =
+      typeof evaluation.decorationsErrorRowIndex === 'number'
+        ? rows[evaluation.decorationsErrorRowIndex]?.querySelector('.decorations-config__key')
+        : decorationsConfigList.querySelector(`.${LIST_TEMPLATE_CLASS} .decorations-config__key`);
+    badKey?.focus();
+    return true;
+  }
+  if (!evaluation.ok) {
+    if (evaluation.triggerError) {
+      triggerInput.focus();
+    }
+    return true;
+  }
+  return false;
+}
+
 function applyInlineValidationErrors(evaluation) {
   setFieldError(triggerInput, triggerError, evaluation.triggerError || '');
 
@@ -1559,40 +1590,7 @@ async function saveOptions(event) {
   const evaluation = getCurrentNormalizedSettings();
   applyInlineValidationErrors(evaluation);
 
-  if (evaluation.originsError) {
-    const inputs = originsList.querySelectorAll('.origins-list__input');
-    const bad =
-      typeof evaluation.invalidRowIndex === 'number' ? inputs[evaluation.invalidRowIndex] : null;
-    bad?.focus();
-    return;
-  }
-
-  if (evaluation.labelsError) {
-    const rows = labelsConfigList.querySelectorAll(`.labels-config__item:not(.${LIST_TEMPLATE_CLASS})`);
-    const badKey =
-      typeof evaluation.labelsErrorRowIndex === 'number'
-        ? rows[evaluation.labelsErrorRowIndex]?.querySelector('.labels-config__key')
-        : labelsConfigList.querySelector(`.${LIST_TEMPLATE_CLASS} .labels-config__key`);
-    badKey?.focus();
-    return;
-  }
-
-  if (evaluation.decorationsError) {
-    const rows = decorationsConfigList.querySelectorAll(
-      `.decorations-config__item:not(.${LIST_TEMPLATE_CLASS})`
-    );
-    const badKey =
-      typeof evaluation.decorationsErrorRowIndex === 'number'
-        ? rows[evaluation.decorationsErrorRowIndex]?.querySelector('.decorations-config__key')
-        : decorationsConfigList.querySelector(`.${LIST_TEMPLATE_CLASS} .decorations-config__key`);
-    badKey?.focus();
-    return;
-  }
-
-  if (!evaluation.ok) {
-    if (evaluation.triggerError) {
-      triggerInput.focus();
-    }
+  if (abortSaveIfInvalidEvaluation(evaluation)) {
     return;
   }
 
@@ -1608,16 +1606,18 @@ async function saveOptions(event) {
   } = evaluation.settings;
 
   try {
-    await chrome.storage.sync.set({
-      allowedUrlPatterns,
-      triggerText,
-      debugMode,
-      orderLabelsByUsage,
-      showLabelDescriptions,
-      showDecorationDescriptions,
-      labelsConfig,
-      decorationsConfig
-    });
+    await chrome.storage.sync.set(
+      syncSettingsWritePayload({
+        allowedUrlPatterns,
+        triggerText,
+        debugMode,
+        orderLabelsByUsage,
+        showLabelDescriptions,
+        showDecorationDescriptions,
+        labelsConfig,
+        decorationsConfig
+      })
+    );
   } catch (error) {
     setSaveFeedback(feedbackEl, "Couldn't save", 'error');
     return;
@@ -1635,16 +1635,16 @@ async function saveOptions(event) {
   if (showDecorationDescriptionsInput) {
     showDecorationDescriptionsInput.checked = Boolean(showDecorationDescriptions);
   }
-  savedSettings = {
+  savedSettings = snapshotSavedSettingsFromEvaluation({
     triggerText,
     allowedUrlPatterns,
     debugMode: Boolean(debugMode),
     orderLabelsByUsage: Boolean(orderLabelsByUsage),
     showLabelDescriptions: Boolean(showLabelDescriptions),
     showDecorationDescriptions: Boolean(showDecorationDescriptions),
-    labelsConfig: labelsConfig.slice(),
-    decorationsConfig: decorationsConfig.slice()
-  };
+    labelsConfig,
+    decorationsConfig
+  });
   setOriginsError('');
   setLabelsConfigError('');
   setDecorationsConfigError('');
@@ -1654,16 +1654,18 @@ async function saveOptions(event) {
 
 async function clearOptions() {
   try {
-    await chrome.storage.sync.set({
-      allowedUrlPatterns: DEFAULT_PATTERNS,
-      triggerText: DEFAULT_TRIGGER,
-      debugMode: DEFAULT_DEBUG_MODE,
-      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE,
-      showLabelDescriptions: DEFAULT_SHOW_LABEL_DESCRIPTIONS,
-      showDecorationDescriptions: DEFAULT_SHOW_DECORATION_DESCRIPTIONS,
-      labelsConfig: getBuiltInDefaultLabelsConfig(),
-      decorationsConfig: getBuiltInDefaultDecorationsConfig()
-    });
+    await chrome.storage.sync.set(
+      syncSettingsWritePayload({
+        allowedUrlPatterns: DEFAULT_PATTERNS,
+        triggerText: DEFAULT_TRIGGER,
+        debugMode: DEFAULT_DEBUG_MODE,
+        orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE,
+        showLabelDescriptions: DEFAULT_SHOW_LABEL_DESCRIPTIONS,
+        showDecorationDescriptions: DEFAULT_SHOW_DECORATION_DESCRIPTIONS,
+        labelsConfig: getBuiltInDefaultLabelsConfig(),
+        decorationsConfig: getBuiltInDefaultDecorationsConfig()
+      })
+    );
   } catch (error) {
     setStatus("Couldn't reset", 'error');
     return;
@@ -1706,33 +1708,11 @@ async function resetLabelUsage() {
   try {
     await chrome.storage.local.set({ labelUsageCounts: {} });
   } catch (error) {
-    setResetLabelUsageStatus('Couldn’t clear counts', 'error');
+    setSaveFeedback(resetLabelUsageStatus, 'Couldn’t clear counts', 'error');
     return;
   }
 
-  setResetLabelUsageStatus('Usage counts cleared', 'success');
-}
-
-function setResetLabelUsageStatus(message, type) {
-  resetLabelUsageStatus.textContent = message;
-  resetLabelUsageStatus.classList.remove('status--success', 'status--error');
-
-  if (type === 'error') {
-    resetLabelUsageStatus.classList.add('status--error');
-  } else {
-    resetLabelUsageStatus.classList.add('status--success');
-  }
-
-  if (!message) {
-    return;
-  }
-
-  const timeoutMs = type === 'error' ? 5000 : 1500;
-  window.setTimeout(() => {
-    if (resetLabelUsageStatus.textContent === message) {
-      resetLabelUsageStatus.textContent = '';
-    }
-  }, timeoutMs);
+  setSaveFeedback(resetLabelUsageStatus, 'Usage counts cleared', 'success');
 }
 
 saveButton.addEventListener('click', (e) => saveOptions(e));

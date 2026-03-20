@@ -31,8 +31,11 @@
   --settings-font-label: 16px;
   --settings-font-lead: 17px;
   --settings-section-title-fs: 19px;
+  --settings-status-success: #15803d;
+  --settings-status-error: #b91c1c;
 }
 
+/* --- Page shell & tab layout --- */
 body {
   margin: 0;
   min-height: 100vh;
@@ -271,10 +274,10 @@ textarea {
   min-height: 0;
 }
 .config-list-save-row__status.status--success {
-  color: #15803d;
+  color: var(--settings-status-success);
 }
 .config-list-save-row__status.status--error {
-  color: #b91c1c;
+  color: var(--settings-status-error);
 }
 .labels-config-list > li.labels-config__item,
 .decorations-config-list > li.decorations-config__item {
@@ -701,7 +704,7 @@ textarea:focus,
 }
 .field-error {
   font-size: var(--settings-font-ui);
-  color: #b91c1c;
+  color: var(--settings-status-error);
 }
 .field-error:empty {
   display: none;
@@ -737,10 +740,10 @@ textarea:focus,
   min-height: 1.2em;
 }
 .label-ordering-actions__status.status--success {
-  color: #15803d;
+  color: var(--settings-status-success);
 }
 .label-ordering-actions__status.status--error {
-  color: #b91c1c;
+  color: var(--settings-status-error);
 }
 .actions {
   margin-top: 0;
@@ -862,10 +865,10 @@ textarea:focus,
 }
 
 #status.status--success {
-  color: #15803d;
+  color: var(--settings-status-success);
 }
 #status.status--error {
-  color: #b91c1c;
+  color: var(--settings-status-error);
 }
 .settings__footer {
   margin-top: 14px;
