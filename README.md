@@ -8,20 +8,18 @@ Browser extension (Chrome, Edge, Firefox) that offers autocomplete for [Conventi
 
 - Autocomplete dropdown when you type a configurable trigger in comment textareas (MR/PR conversation, files, and changes views where supported).
 - **GitLab** and **GitHub** support with styling that matches each host where possible.
-- **Options:** custom trigger text (default `cc`), allowed origins (exact HTTPS only), and optional debug logging.
+- **Options:** trigger word, allowed HTTPS origins, labels/decorations, optional debug logging, and reset.
 - **Firefox** and **Chromium-class** builds from a shared codebase (Manifest V3); Firefox uses a script-based background entry as required by the platform.
 
 ## Usage
 
-Load the extension in your browser.
+Install the extension, then open **Options**.
 
-Open the extension **options** to set:
+- **Trigger & origins** — keyword that opens the picker (default `cc`) and which HTTPS sites may inject the script.
+- **Labels** — label list, optional “sort by usage”, and decorations.
+- **Advanced** — debug logging in the console and restoring factory defaults.
 
-- **Trigger** — substring that opens the menu (default `cc`).
-- **Allowed origins** — exact origins such as `https://gitlab.com` or `https://github.com` (no wildcards, paths, query strings, or hashes).
-- **Debug** — extra console logging for matching and injection.
-
-**Save** is enabled only when settings are valid and changed.
+**Save** works when the form is valid and something changed.
 
 ## Build
 

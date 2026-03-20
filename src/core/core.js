@@ -10,8 +10,100 @@
   const INSTANCE_KEY = constants.INSTANCE_KEY || '__gccInstance';
   const BOUND_ATTRIBUTE = constants.BOUND_ATTRIBUTE || 'data-cc-bound';
   const DROPDOWN_ID = constants.DROPDOWN_ID || 'gl-cc-dropdown';
-  const LABELS = constants.LABELS || [];
-  const DECORATIONS = constants.DECORATIONS || [];
+  const DEFAULT_SHOW_LABEL_DESCS =
+    typeof globalThis.DEFAULT_SHOW_LABEL_DESCRIPTIONS === 'boolean'
+      ? globalThis.DEFAULT_SHOW_LABEL_DESCRIPTIONS
+      : true;
+  const DEFAULT_SHOW_DECORATION_DESCS =
+    typeof globalThis.DEFAULT_SHOW_DECORATION_DESCRIPTIONS === 'boolean'
+      ? globalThis.DEFAULT_SHOW_DECORATION_DESCRIPTIONS
+      : true;
+  const DEFAULT_LABEL_ITEMS = Array.isArray(constants.LABELS)
+    ? constants.LABELS.map((item) => ({
+      key: String(item.key),
+      description: typeof item.description === 'string' ? item.description : '',
+      enabled: true
+    }))
+    : [];
+  let labelsSource = DEFAULT_LABEL_ITEMS.slice();
+  const DEFAULT_DECORATION_ITEMS = Array.isArray(constants.DECORATIONS)
+    ? constants.DECORATIONS.map((item) => ({
+      key: String(item.key),
+      description: typeof item.description === 'string' ? item.description : '',
+      enabled: true
+    }))
+    : [];
+  let decorationsSource = DEFAULT_DECORATION_ITEMS.slice();
+
+  function normalizeLabelsConfigFromStorage(raw) {
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return null;
+    }
+    const out = [];
+    for (let i = 0; i < raw.length; i += 1) {
+      const item = raw[i];
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
+      const key = typeof item.key === 'string' ? item.key.trim() : '';
+      if (!key) {
+        continue;
+      }
+      out.push({
+        key,
+        description: typeof item.description === 'string' ? item.description : '',
+        enabled: item.enabled !== false
+      });
+    }
+    return out.length > 0 ? out : null;
+  }
+
+  function normalizeDecorationsConfigFromStorage(raw) {
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return null;
+    }
+    const out = [];
+    for (let i = 0; i < raw.length; i += 1) {
+      const item = raw[i];
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
+      const key = typeof item.key === 'string' ? item.key.trim() : '';
+      if (!key) {
+        continue;
+      }
+      out.push({
+        key,
+        description: typeof item.description === 'string' ? item.description : '',
+        enabled: item.enabled !== false
+      });
+    }
+    return out.length > 0 ? out : null;
+  }
+
+  function applyLabelsConfig(config) {
+    if (!config) {
+      labelsSource = DEFAULT_LABEL_ITEMS.slice();
+      return;
+    }
+    labelsSource = config.map((entry) => ({
+      key: String(entry.key),
+      description: typeof entry.description === 'string' ? entry.description : '',
+      enabled: entry.enabled !== false
+    }));
+  }
+
+  function applyDecorationsConfig(config) {
+    if (!config) {
+      decorationsSource = DEFAULT_DECORATION_ITEMS.slice();
+      return;
+    }
+    decorationsSource = config.map((entry) => ({
+      key: String(entry.key),
+      description: typeof entry.description === 'string' ? entry.description : '',
+      enabled: entry.enabled !== false
+    }));
+  }
 
   function fallbackEscapeRegex(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -151,12 +243,18 @@
     const dropdown = createDropdown();
     const state = createRuntimeState(FALLBACK_TRIGGER);
     let orderLabelsByUsage = DEFAULT_ORDER_LABELS_BY_USAGE;
+    let showLabelDescriptions = DEFAULT_SHOW_LABEL_DESCS;
+    let showDecorationDescriptions = DEFAULT_SHOW_DECORATION_DESCS;
     let labelUsageCounts = {};
 
     chrome.storage.sync.get({
       triggerText: FALLBACK_TRIGGER,
       debugMode: DEFAULT_DEBUG_MODE,
-      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE
+      orderLabelsByUsage: DEFAULT_ORDER_LABELS_BY_USAGE,
+      labelsConfig: null,
+      decorationsConfig: null,
+      showLabelDescriptions: DEFAULT_SHOW_LABEL_DESCS,
+      showDecorationDescriptions: DEFAULT_SHOW_DECORATION_DESCS
     }).then((result) => {
       if (typeof result.triggerText === 'string' && result.triggerText.trim() !== '') {
         state.triggerText = result.triggerText.trim();
@@ -165,10 +263,18 @@
       }
       debugModeEnabled = Boolean(result.debugMode);
       orderLabelsByUsage = Boolean(result.orderLabelsByUsage);
+      showLabelDescriptions = result.showLabelDescriptions !== false;
+      showDecorationDescriptions = result.showDecorationDescriptions !== false;
+      applyLabelsConfig(normalizeLabelsConfigFromStorage(result.labelsConfig));
+      applyDecorationsConfig(normalizeDecorationsConfigFromStorage(result.decorationsConfig));
     }).catch((error) => {
       state.triggerText = FALLBACK_TRIGGER;
       debugModeEnabled = DEFAULT_DEBUG_MODE;
       orderLabelsByUsage = DEFAULT_ORDER_LABELS_BY_USAGE;
+      showLabelDescriptions = DEFAULT_SHOW_LABEL_DESCS;
+      showDecorationDescriptions = DEFAULT_SHOW_DECORATION_DESCS;
+      applyLabelsConfig(null);
+      applyDecorationsConfig(null);
       logDebug('failed to load trigger/debug settings', error);
     });
 
@@ -211,6 +317,46 @@
       if (changes.orderLabelsByUsage) {
         orderLabelsByUsage = Boolean(changes.orderLabelsByUsage.newValue);
         logDebug('order labels by usage toggled', { orderLabelsByUsage });
+      }
+
+      if (changes.labelsConfig) {
+        applyLabelsConfig(normalizeLabelsConfigFromStorage(changes.labelsConfig.newValue));
+        logDebug('labels config updated', { count: labelsSource.length });
+        if (!dropdown.hidden && state.mode === 'labels') {
+          renderLabels();
+        }
+      }
+
+      if (changes.decorationsConfig) {
+        applyDecorationsConfig(normalizeDecorationsConfigFromStorage(changes.decorationsConfig.newValue));
+        logDebug('decorations config updated', { count: decorationsSource.length });
+        if (!dropdown.hidden && state.mode === 'decorations') {
+          const opts = getDecorationOptions();
+          if (opts.length === 0) {
+            applySelection();
+          } else {
+            renderDecorations();
+          }
+        }
+      }
+
+      if (changes.showLabelDescriptions) {
+        showLabelDescriptions = changes.showLabelDescriptions.newValue !== false;
+        if (!dropdown.hidden && state.mode === 'labels') {
+          renderLabels();
+        }
+      }
+
+      if (changes.showDecorationDescriptions) {
+        showDecorationDescriptions = changes.showDecorationDescriptions.newValue !== false;
+        if (!dropdown.hidden && state.mode === 'decorations') {
+          const opts = getDecorationOptions();
+          if (opts.length === 0) {
+            applySelection();
+          } else {
+            renderDecorations();
+          }
+        }
       }
     }
 
@@ -276,23 +422,23 @@
 
     function getFilteredLabels() {
       const filter = state.currentFilter.toLowerCase();
+      const active = labelsSource.filter((item) => item.enabled !== false);
       const filtered = filter
-        ? LABELS.filter((item) => item.key.startsWith(filter))
-        : LABELS;
+        ? active.filter((item) => item.key.toLowerCase().startsWith(filter))
+        : active;
 
       return sortLabelsByUsage(filtered);
     }
 
     function getDecorationOptions() {
-      return DECORATIONS;
+      return decorationsSource.filter((item) => item.enabled !== false);
     }
 
     function getSelectedDecorationsText() {
-      const ordered = DECORATIONS
+      return decorationsSource
+        .filter((item) => item.enabled !== false && state.selectedDecorations.has(item.key))
         .map((item) => item.key)
-        .filter((key) => state.selectedDecorations.has(key));
-
-      return ordered.join(', ');
+        .join(', ');
     }
 
     function hideDropdown() {
@@ -311,7 +457,12 @@
       state.mode = 'decorations';
       state.activeIndex = 0;
       state.selectedDecorations = new Set();
-      renderDecorations();
+      const decorationItems = getDecorationOptions();
+      if (decorationItems.length === 0) {
+        applySelection();
+      } else {
+        renderDecorations();
+      }
     }
 
     function toggleDecoration(nextActiveIndex) {
@@ -338,7 +489,8 @@
         items: getFilteredLabels(),
         activeIndex: state.activeIndex,
         onChooseLabel: chooseLabel,
-        visibleRows: 5.4
+        visibleRows: 5.4,
+        showDescriptions: showLabelDescriptions
       });
     }
 
@@ -349,7 +501,8 @@
         activeIndex: state.activeIndex,
         selectedDecorations: state.selectedDecorations,
         onToggleDecoration: toggleDecoration,
-        visibleRows: 5.4
+        visibleRows: 5.4,
+        showDescriptions: showDecorationDescriptions
       });
     }
 
@@ -428,6 +581,17 @@
 
       if (state.mode === 'labels') {
         const labels = getFilteredLabels();
+        if (labels.length === 0) {
+          if (event.key === 'Escape' || event.key === 'Esc') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+            hideDropdown();
+          }
+          return;
+        }
         if (event.key === 'ArrowDown') {
           event.preventDefault();
           state.activeIndex = (state.activeIndex + 1) % labels.length;
@@ -451,6 +615,20 @@
       }
 
       const items = getDecorationOptions();
+      if (items.length === 0) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          applySelection();
+        } else if (event.key === 'Escape' || event.key === 'Esc') {
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+          }
+          hideDropdown();
+        }
+        return;
+      }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
         state.activeIndex = (state.activeIndex + 1) % items.length;
