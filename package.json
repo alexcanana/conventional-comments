@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "validate": "node scripts/validate.js",
     "build": "node scripts/build.js",
     "build:chromium": "node scripts/build.js chromium",
     "build:firefox": "node scripts/build.js firefox-mv3"

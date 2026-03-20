@@ -1,0 +1,88 @@
+name: Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Bump version
+        id: bump
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          node scripts/bump-version.js
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "bumped=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bumped=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit version bump
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          steps.bump.outputs.bumped == 'true'
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add manifests/manifest.base.mv3.json
+            version=$(node -p "require('./manifests/manifest.base.mv3.json').version")
+            git commit -m "chore: bump version to ${version}"
+            git push
+          fi
+
+      - name: Validate manifests
+        run: node scripts/validate.js
+
+      - name: Build bundles
+        run: node scripts/build.js
+
+      - name: Upload Chromium bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: conventional-comments-chromium
+          path: dist/conventional-comments-chromium-v*.zip
+
+      - name: Upload Firefox MV3 bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: conventional-comments-firefox-mv3
+          path: dist/conventional-comments-firefox-mv3-v*.zip
+
+      - name: Create release
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          steps.bump.outputs.bumped == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node -p "require('./manifests/manifest.base.mv3.json').version")
+          tag="v${version}"
+          if ! git rev-parse "${tag}" >/dev/null 2>&1; then
+            git tag "${tag}"
+            git push origin "${tag}"
+          fi
+          if ! gh release view "${tag}" >/dev/null 2>&1; then
+            gh release create "${tag}" --title "${tag}" --notes "Automated release"
+          fi
+          gh release upload "${tag}" dist/conventional-comments-chromium-v*.zip --clobber
+          gh release upload "${tag}" dist/conventional-comments-firefox-mv3-v*.zip --clobber
