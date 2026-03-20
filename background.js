@@ -1,5 +1,7 @@
-importScripts('src/shared.js');
-importScripts('src/core/routes.js');
+// Chrome MV3 uses only the service worker entry; Firefox loads `scripts` in order and must not run these twice.
+if (typeof importScripts === 'function') {
+  importScripts('src/shared.js', 'src/core/routes.js');
+}
 
 const routes = globalThis.GCC_ROUTES || {};
 const GITLAB_MERGE_REQUEST_PATH_RE = routes.GITLAB_MERGE_REQUEST_PATH_RE || /\/-\/merge_requests\/\d+(?:\/diffs)?(?:\/.*)?$/;
