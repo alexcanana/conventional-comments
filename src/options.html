@@ -7,61 +7,180 @@
   <link rel="stylesheet" href="options.css" />
 </head>
 
-<body>
-  <main class="settings">
-    <header class="settings__header">
-      <div class="settings__eyebrow">Extension settings</div>
-      <h1>Conventional Comments</h1>
-      <p class="intro">Configure how and where the extension runs.</p>
+<body
+  class="m-0 min-h-screen box-border bg-[linear-gradient(180deg,#fafafa_0%,#f1f1f2_100%)] p-8 font-sans text-slate-900">
+  <main class="settings mx-auto max-w-4xl">
+    <header class="settings__header mb-5">
+      <div class="settings__eyebrow mb-2 text-xs font-bold uppercase tracking-[0.08em] text-slate-400">Extension
+        settings</div>
+      <h1 class="m-0 mb-2.5 text-3xl leading-[1.15]">Conventional Comments</h1>
+      <p class="intro m-0 text-lg text-slate-400">Configure how and where the extension runs.</p>
     </header>
 
-    <section class="card">
-      <label for="trigger-text">Trigger text</label>
-      <p class="field-help" id="trigger-help">Set the keyword used to trigger label suggestions (for example,
-        <code>cc</code>).
-      </p>
-      <input id="trigger-text" type="text" maxlength="20" placeholder="cc" required aria-required="true"
-        aria-describedby="trigger-help trigger-text-error" />
-      <p id="trigger-text-error" class="field-error" aria-live="polite"></p>
-
-      <label for="allowed-patterns" class="settings__label">Allowed origins</label>
-      <p class="field-help" id="origins-help">Allow exact HTTPS origins only. One origin per line.</p>
-      <p class="field-help">No wildcards, no paths, HTTPS only.</p>
-      <textarea id="allowed-patterns" rows="10" spellcheck="false"
-        placeholder="https://github.com&#10;https://gitlab.com&#10;https://gitlab.example.com"
-        aria-describedby="origins-help allowed-patterns-error"></textarea>
-      <p id="allowed-patterns-error" class="field-error" aria-live="polite"></p>
-
-      <label for="order-labels-by-usage" class="settings__label">Label ordering</label>
-      <label for="order-labels-by-usage" class="checkbox-row">
-        <input id="order-labels-by-usage" type="checkbox" aria-describedby="order-labels-by-usage-help" />
-        <span id="order-labels-by-usage-help" class="field-help">Order labels by most used. Counts are stored locally on
-          this browser only.</span>
-      </label>
-      <div class="actions actions--inline">
-        <button id="reset-label-usage" type="button" class="button button--secondary button--small">Reset label
-          usage</button>
-        <span id="reset-label-usage-status" aria-live="polite" aria-atomic="true" role="status"></span>
+    <div class="settings__tabs-root flex flex-col gap-4">
+      <div class="settings__tabs flex flex-wrap gap-1.5 rounded-xl border border-slate-200 bg-white/70 p-1.5 shadow-md"
+        role="tablist" aria-label="Settings">
+        <button type="button"
+          class="settings__tab m-0 min-w-36 flex-1 rounded-lg border border-transparent px-3.5 py-2.5 text-sm font-semibold text-slate-400 transition hover:bg-white/55 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600 aria-selected:border-blue-600/25 aria-selected:bg-blue-600/10 aria-selected:text-blue-700 aria-selected:focus-visible:outline-blue-600"
+          role="tab" id="tab-trigger-origins" aria-selected="true" aria-controls="panel-trigger-origins"
+          tabindex="0">Trigger &amp; origins</button>
+        <button type="button"
+          class="settings__tab m-0 min-w-36 flex-1 rounded-lg border border-transparent px-3.5 py-2.5 text-sm font-semibold text-slate-400 transition hover:bg-white/55 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600 aria-selected:border-blue-600/25 aria-selected:bg-blue-600/10 aria-selected:text-blue-700 aria-selected:focus-visible:outline-blue-600"
+          role="tab" id="tab-labels" aria-selected="false" aria-controls="panel-labels" tabindex="-1">Labels &amp;
+          decorations</button>
+        <button type="button"
+          class="settings__tab m-0 min-w-36 flex-1 rounded-lg border border-transparent px-3.5 py-2.5 text-sm font-semibold text-slate-400 transition hover:bg-white/55 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600 aria-selected:border-blue-600/25 aria-selected:bg-blue-600/10 aria-selected:text-blue-700 aria-selected:focus-visible:outline-blue-600"
+          role="tab" id="tab-debug-reset" aria-selected="false" aria-controls="panel-debug-reset"
+          tabindex="-1">Advanced</button>
       </div>
 
-      <label for="debug-mode" class="settings__label">Debug mode</label>
-      <label for="debug-mode" class="checkbox-row">
-        <input id="debug-mode" type="checkbox" aria-describedby="debug-mode-help" />
-        <span id="debug-mode-help" class="field-help">Enable console logs for troubleshooting injection and editor
-          matching issues.</span>
-      </label>
+      <div id="panel-trigger-origins" class="settings__tab-panel" role="tabpanel" aria-labelledby="tab-trigger-origins">
+        <div class="settings__sections flex flex-col gap-4">
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-trigger">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-trigger">Trigger text</h2>
+            <p class="field-help my-1.5 mb-2.5 text-sm text-slate-400" id="trigger-help">Set the keyword used to trigger
+              label suggestions (for example,
+              <code>cc</code>).
+            </p>
+            <div class="trigger-save-row flex items-start gap-0">
+              <div class="trigger-save-row__field flex min-w-0 flex-1 flex-col items-stretch">
+                <input id="trigger-text" type="text" maxlength="20" placeholder="cc" required aria-required="true"
+                  aria-labelledby="section-trigger" aria-describedby="trigger-help trigger-text-error"
+                  class="m-0 h-10 w-full rounded-l-lg border border-slate-200 px-3 py-0 font-mono text-sm leading-tight text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+                <p id="trigger-text-error"
+                  class="field-error field-error--row min-h-[1.2em] pt-2 text-[13px] text-red-700 empty:hidden"
+                  aria-live="polite"></p>
+              </div>
+              <button id="save" type="button"
+                class="button button--primary trigger-save-row__save inline-flex h-10 items-center justify-center rounded-l-none! rounded-r-lg! border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white">Save</button>
+            </div>
+            <p id="status" class="trigger-save-row__status min-h-[1.2em] text-sm font-semibold empty:hidden"
+              aria-live="polite" aria-atomic="true" role="status"></p>
+          </section>
 
-      <div class="actions">
-        <button id="reset" type="button" class="button button--secondary">Reset to defaults</button>
-        <button id="save" type="button" class="button button--primary">Save</button>
-        <span id="status" aria-live="polite" aria-atomic="true" role="status"></span>
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-origins">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-origins">Allowed origins</h2>
+            <p class="field-help my-1.5 mb-2.5 text-sm text-slate-400" id="origins-help">Allow exact HTTPS origins only.
+              One origin per line.</p>
+            <p class="field-help my-1.5 mb-2.5 text-sm text-slate-400">No wildcards, no paths, HTTPS only.</p>
+            <ul id="origins-list" class="origins-list m-0 flex list-none flex-col gap-1 p-0" role="list"></ul>
+            <div class="config-list-save-row mt-4 flex flex-wrap items-center justify-start gap-3 px-0 py-3">
+              <button id="origins-list-save" type="button"
+                class="button button--primary inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white">Save</button>
+              <span id="origins-list-save-status"
+                class="config-list-save-row__status min-h-[1.2em] text-sm font-semibold empty:hidden" aria-live="polite"
+                aria-atomic="true" role="status"></span>
+            </div>
+          </section>
+        </div>
       </div>
-    </section>
-    <footer class="settings__footer">
-      <span id="version" class="version"></span>
+
+      <div id="panel-labels" class="settings__tab-panel" role="tabpanel" aria-labelledby="tab-labels" hidden>
+        <div class="settings__sections flex flex-col gap-4">
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-label-ordering">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-label-ordering">Label ordering</h2>
+            <label for="order-labels-by-usage"
+              class="checkbox-row inline-flex cursor-pointer items-center gap-2 font-normal">
+              <input id="order-labels-by-usage" type="checkbox" aria-describedby="order-labels-by-usage-help" />
+              <span id="order-labels-by-usage-help" class="field-help m-0 text-sm text-slate-400">Order labels by most
+                used.</span>
+            </label>
+            <div class="label-ordering-actions mt-3 flex items-center justify-end gap-3">
+              <span id="reset-label-usage-status" class="mr-auto min-h-[1.2em] text-sm font-semibold empty:hidden"
+                aria-live="polite" aria-atomic="true" role="status"></span>
+              <button id="reset-label-usage" type="button"
+                class="config-row__toggle inline-flex h-10 w-auto min-w-0 items-center justify-center whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold leading-none text-slate-500 hover:border-slate-300">Clear
+                usage counts</button>
+            </div>
+          </section>
+
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-labels">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-labels">Labels</h2>
+            <label for="show-label-descriptions"
+              class="checkbox-row inline-flex cursor-pointer items-center gap-2.5 px-3 py-2 font-normal">
+              <input id="show-label-descriptions" class="m-0 shrink-0" type="checkbox"
+                aria-describedby="show-label-descriptions-help" />
+              <span id="show-label-descriptions-help" class="field-help m-0 text-sm leading-[1.4] text-slate-400">Show
+                label descriptions in the dropdown.</span>
+            </label>
+            <ul id="labels-config-list" class="labels-config-list m-0 flex list-none flex-col gap-2 p-0" role="list">
+            </ul>
+            <div class="config-list-save-row mt-4 flex flex-wrap items-center justify-start gap-3 px-0 py-3">
+              <button id="labels-config-save" type="button"
+                class="button button--primary inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white">Save</button>
+              <span id="labels-config-save-status"
+                class="config-list-save-row__status min-h-[1.2em] text-sm font-semibold empty:hidden" aria-live="polite"
+                aria-atomic="true" role="status"></span>
+            </div>
+          </section>
+
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-decorations">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-decorations">Decorations</h2>
+            <label for="show-decoration-descriptions"
+              class="checkbox-row inline-flex cursor-pointer items-center gap-2.5 px-3 py-2 font-normal">
+              <input id="show-decoration-descriptions" class="m-0 shrink-0" type="checkbox"
+                aria-describedby="show-decoration-descriptions-help" />
+              <span id="show-decoration-descriptions-help"
+                class="field-help m-0 text-sm leading-[1.4] text-slate-400">Show decoration descriptions in the
+                dropdown.</span>
+            </label>
+            <ul id="decorations-config-list" class="decorations-config-list m-0 flex list-none flex-col gap-2 p-0"
+              role="list"></ul>
+            <div class="config-list-save-row mt-4 flex flex-wrap items-center justify-start gap-3 px-0 py-3">
+              <button id="decorations-config-save" type="button"
+                class="button button--primary inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white">Save</button>
+              <span id="decorations-config-save-status"
+                class="config-list-save-row__status min-h-[1.2em] text-sm font-semibold empty:hidden" aria-live="polite"
+                aria-atomic="true" role="status"></span>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div id="panel-debug-reset" class="settings__tab-panel" role="tabpanel" aria-labelledby="tab-debug-reset" hidden>
+        <div class="settings__sections flex flex-col gap-4">
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-debug">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-debug">Debugging</h2>
+            <label for="debug-mode" class="checkbox-row inline-flex cursor-pointer items-center gap-2 font-normal">
+              <input id="debug-mode" type="checkbox" aria-describedby="debug-mode-help" />
+              <span id="debug-mode-help" class="field-help m-0 text-sm text-slate-400">Enable console logs for
+                troubleshooting injection and editor
+                matching issues.</span>
+            </label>
+          </section>
+
+          <section class="card rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl"
+            aria-labelledby="section-reset">
+            <h2 class="settings__section-title mb-3 text-xl font-bold leading-tight tracking-[-0.01em] text-slate-900"
+              id="section-reset">Reset</h2>
+            <div class="actions actions--inline mt-3 flex items-center gap-3">
+              <button id="reset" type="button"
+                class="button button--danger inline-flex min-h-10 items-center justify-center rounded-lg border border-red-800 bg-red-700 text-sm font-bold leading-[1.45] text-white hover:bg-red-800">Reset
+                to defaults</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <footer class="settings__footer mt-3.5 text-right">
+      <span id="version" class="version text-xs text-slate-400"></span>
     </footer>
   </main>
 
+  <script src="core/constants.js"></script>
   <script src="shared.js"></script>
   <script src="options.js"></script>
 </body>

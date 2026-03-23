@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Conventional Comments for GitLab & GitHub",
   "version": "0.1.1",
-  "description": "Shows a Conventional Comments dropdown when typing a trigger in merge request and pull request comment textareas (Chrome, Edge, Firefox).",
+  "description": "Conventional Comments autocomplete in GitLab/GitHub MR and PR comment boxes (Chrome, Edge, Firefox).",
   "permissions": [
     "storage",
     "scripting",

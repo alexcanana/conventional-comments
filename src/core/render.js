@@ -53,7 +53,8 @@
       items,
       activeIndex,
       onChooseLabel,
-      visibleRows
+      visibleRows,
+      showDescriptions = true
     } = options;
 
     if (items.length === 0) {
@@ -66,9 +67,13 @@
 
     const listMarkup = items.map((item, index) => {
       const activeClass = index === nextActiveIndex ? ' active' : '';
+      const descriptionMarkup =
+        showDescriptions === false
+          ? ''
+          : `<span class="gl-cc-description">${item.description}</span>`;
       return `<li class="gl-cc-item${activeClass}" data-index="${index}" data-key="${item.key}">
         <span class="gl-cc-marker">${item.key}</span>
-        <span class="gl-cc-description">${item.description}</span>
+        ${descriptionMarkup}
       </li>`;
     }).join('');
 
@@ -115,7 +120,8 @@
       activeIndex,
       selectedDecorations,
       onToggleDecoration,
-      visibleRows
+      visibleRows,
+      showDescriptions = true
     } = options;
 
     if (items.length === 0) {
@@ -131,10 +137,14 @@
       const selected = selectedDecorations.has(item.key);
       const selectedClass = selected ? ' selected' : '';
       const checked = selected ? ' checked' : '';
+      const descriptionMarkup =
+        showDescriptions === false
+          ? ''
+          : `<span class="gl-cc-description">${item.description}</span>`;
       return `<li class="gl-cc-item${activeClass}${selectedClass}" data-index="${index}" data-key="${item.key}">
         <input type="checkbox" class="gl-cc-checkbox" aria-label="${item.key}" tabindex="-1"${checked} />
         <span class="gl-cc-marker">${item.key}</span>
-        <span class="gl-cc-description">${item.description}</span>
+        ${descriptionMarkup}
       </li>`;
     }).join('');
 

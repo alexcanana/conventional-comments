@@ -3,6 +3,8 @@
 const fs = require("fs/promises");
 const path = require("path");
 const { execSync } = require("child_process");
+const { transform } = require("esbuild");
+const { minify: minifyHtml } = require("html-minifier-terser");
 
 const rootDir = path.resolve(__dirname, "..");
 const sourceDir = path.join(rootDir, "src");
@@ -60,9 +62,73 @@ async function copyExtension(targetDir) {
   await fs.cp(sourceDir, targetDir, { recursive: true });
 }
 
+function compileTailwindOptionsCss(targetDir) {
+  const inputPath = path.join(targetDir, "options.tailwind.css");
+  const outputPath = path.join(targetDir, "options.css");
+  execSync(`npx @tailwindcss/cli -i "${inputPath}" -o "${outputPath}" --minify`, {
+    stdio: "inherit",
+    cwd: rootDir,
+  });
+}
+
 async function writeManifest(targetDir, manifest) {
   const manifestPath = path.join(targetDir, "manifest.json");
-  await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  await fs.writeFile(manifestPath, JSON.stringify(manifest), "utf8");
+}
+
+async function listFilesRecursive(dirPath) {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await listFilesRecursive(fullPath)));
+      continue;
+    }
+    files.push(fullPath);
+  }
+
+  return files;
+}
+
+async function minifyTargetAssets(targetDir) {
+  const allFiles = await listFilesRecursive(targetDir);
+
+  for (const filePath of allFiles) {
+    const ext = path.extname(filePath).toLowerCase();
+    const raw = await fs.readFile(filePath, "utf8");
+
+    if (ext === ".js") {
+      const out = await transform(raw, {
+        loader: "js",
+        minify: true,
+        legalComments: "none",
+      });
+      await fs.writeFile(filePath, out.code, "utf8");
+      continue;
+    }
+
+    if (ext === ".css") {
+      const out = await transform(raw, {
+        loader: "css",
+        minify: true,
+        legalComments: "none",
+      });
+      await fs.writeFile(filePath, out.code, "utf8");
+      continue;
+    }
+
+    if (ext === ".html") {
+      const out = await minifyHtml(raw, {
+        collapseWhitespace: true,
+        removeComments: true,
+        minifyCSS: true,
+        minifyJS: true,
+      });
+      await fs.writeFile(filePath, out, "utf8");
+    }
+  }
 }
 
 function zipTarget(targetDir, zipName) {
@@ -76,6 +142,8 @@ function zipTarget(targetDir, zipName) {
 async function buildTarget(target) {
   const targetDir = path.join(distDir, target.outputDir);
   await copyExtension(targetDir);
+  compileTailwindOptionsCss(targetDir);
+  await fs.rm(path.join(targetDir, "options.tailwind.css"), { force: true });
 
   const overridePath = path.join(manifestDir, target.manifestOverride);
   const overrideManifest = await readJson(overridePath);
@@ -88,6 +156,7 @@ async function buildTarget(target) {
   }
 
   await writeManifest(targetDir, manifest);
+  await minifyTargetAssets(targetDir);
   const version = manifest.version;
   const zipName = `${target.zipBase}-v${version}.zip`;
   zipTarget(targetDir, zipName);
