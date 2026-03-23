@@ -398,6 +398,51 @@ function parseAllowedOriginLines(lines) {
   return { ok: true, origins: Array.from(new Set(normalized)) };
 }
 
+function parseAllowedOriginsFromDom() {
+  const rows = originsList.querySelectorAll('.origins-list__item');
+  const normalized = [];
+  let savedRowNumber = 0;
+
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    const input = row.querySelector('.origins-list__input');
+    if (!input) {
+      continue;
+    }
+    const raw = input.value;
+    const trimmed = raw.trim();
+    const isTemplate = row.classList.contains(LIST_TEMPLATE_CLASS);
+
+    if (!isTemplate) {
+      savedRowNumber += 1;
+    }
+
+    if (trimmed === '') {
+      if (isTemplate) {
+        continue;
+      }
+      return {
+        ok: false,
+        error: `Row ${savedRowNumber}: Origin required`,
+        invalidRowIndex: index
+      };
+    }
+
+    const result = getNormalizedHttpsOrigin(raw);
+    if (!result.ok) {
+      return {
+        ok: false,
+        error: `Row ${savedRowNumber}: ${result.error}`,
+        invalidRowIndex: index
+      };
+    }
+
+    normalized.push(result.origin);
+  }
+
+  return { ok: true, origins: Array.from(new Set(normalized)) };
+}
+
 function isTemplateOriginAddEnabled(input) {
   const raw = input.value.trim();
   if (raw === '') {
@@ -572,7 +617,7 @@ function parseLabelsConfigFromDom() {
     if (!key) {
       return {
         ok: false,
-        error: `Label row ${i + 1}: key required`,
+        error: `Label row ${i + 1}: Label is required`,
         rowIndex: i
       };
     }
@@ -1135,7 +1180,7 @@ function parseDecorationsConfigFromDom() {
     if (!key) {
       return {
         ok: false,
-        error: `Decoration row ${i + 1}: key required`,
+        error: `Decoration row ${i + 1}: Decoration name is required`,
         rowIndex: i
       };
     }
@@ -1364,8 +1409,7 @@ function renderDecorationsConfigList(decorationsConfig) {
 
 function getCurrentNormalizedSettings() {
   const triggerText = triggerInput.value.trim();
-  const lines = getOriginLinesFromDom();
-  const originsResult = parseAllowedOriginLines(lines);
+  const originsResult = parseAllowedOriginsFromDom();
   const labelsResult = parseLabelsConfigFromDom();
   const decorationsResult = parseDecorationsConfigFromDom();
 
@@ -1729,7 +1773,12 @@ resetButton.addEventListener('click', async () => {
   }
   await clearOptions();
 });
-resetLabelUsageButton.addEventListener('click', () => resetLabelUsage());
+resetLabelUsageButton.addEventListener('click', () => {
+  if (!window.confirm('Clear all label usage counts for this browser?')) {
+    return;
+  }
+  void resetLabelUsage();
+});
 triggerInput.addEventListener('input', () => updateSaveState());
 debugModeInput.addEventListener('change', () => {
   updateSaveState();

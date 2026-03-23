@@ -10,9 +10,9 @@
 <body>
   <main class="settings">
     <header class="settings__header">
-      <div class="settings__eyebrow">Settings</div>
+      <div class="settings__eyebrow">Extension settings</div>
       <h1>Conventional Comments</h1>
-      <p class="intro">Choose where the extension runs and how labels behave.</p>
+      <p class="intro">Configure how and where the extension runs.</p>
     </header>
 
     <div class="settings__tabs-root">
@@ -20,7 +20,7 @@
         <button type="button" class="settings__tab" role="tab" id="tab-trigger-origins" aria-selected="true"
           aria-controls="panel-trigger-origins" tabindex="0">Trigger &amp; origins</button>
         <button type="button" class="settings__tab" role="tab" id="tab-labels" aria-selected="false"
-          aria-controls="panel-labels" tabindex="-1">Labels</button>
+          aria-controls="panel-labels" tabindex="-1">Labels &amp; decorations</button>
         <button type="button" class="settings__tab" role="tab" id="tab-debug-reset" aria-selected="false"
           aria-controls="panel-debug-reset" tabindex="-1">Advanced</button>
       </div>
@@ -29,7 +29,8 @@
         <div class="settings__sections">
           <section class="card" aria-labelledby="section-trigger">
             <h2 class="settings__section-title" id="section-trigger">Trigger text</h2>
-            <p class="field-help" id="trigger-help">Type this word to open label suggestions (e.g. <code>cc</code>).
+            <p class="field-help" id="trigger-help">Set the keyword used to trigger label suggestions (for example,
+              <code>cc</code>).
             </p>
             <div class="trigger-save-row">
               <div class="trigger-save-row__field">
@@ -44,8 +45,8 @@
 
           <section class="card" aria-labelledby="section-origins">
             <h2 class="settings__section-title" id="section-origins">Allowed origins</h2>
-            <p class="field-help">HTTPS sites only—full origin, no path or wildcard (e.g.
-              <code>https://github.com</code>). Top row: paste an origin, then <strong>Add</strong>.</p>
+            <p class="field-help" id="origins-help">Allow exact HTTPS origins only. One origin per line.</p>
+            <p class="field-help">No wildcards, no paths, HTTPS only.</p>
             <ul id="origins-list" class="origins-list" role="list"></ul>
             <div class="config-list-save-row">
               <button id="origins-list-save" type="button" class="button button--primary">Save</button>
@@ -62,28 +63,21 @@
             <h2 class="settings__section-title" id="section-label-ordering">Label ordering</h2>
             <label for="order-labels-by-usage" class="checkbox-row">
               <input id="order-labels-by-usage" type="checkbox" aria-describedby="order-labels-by-usage-help" />
-              <span id="order-labels-by-usage-help" class="field-help">On: sort by use count in this browser. Off: use the
-                order on the Labels tab below.</span>
+              <span id="order-labels-by-usage-help" class="field-help">Order labels by most used.</span>
             </label>
             <div class="label-ordering-actions">
               <span id="reset-label-usage-status" class="label-ordering-actions__status" aria-live="polite"
                 aria-atomic="true" role="status"></span>
-              <button id="reset-label-usage" type="button"
-                class="config-row__toggle label-ordering__usage-reset">Clear usage counts</button>
+              <button id="reset-label-usage" type="button" class="config-row__toggle label-ordering__usage-reset">Clear
+                usage counts</button>
             </div>
           </section>
 
           <section class="card" aria-labelledby="section-labels">
             <h2 class="settings__section-title" id="section-labels">Labels</h2>
-            <p class="field-help">Labels shown in the picker. Eye hides a row without deleting it; drag the grip to
-              reorder. Top row adds entries with <strong>Add</strong>. Keys: lowercase letters, numbers,
-              hyphens (picker subtitles come from extension defaults per key, not edited here). Eye toggles save right away; use
-              <strong>Save</strong> after changing keys or order.</p>
             <label for="show-label-descriptions" class="checkbox-row">
-              <input id="show-label-descriptions" type="checkbox"
-                aria-describedby="show-label-descriptions-help" />
-              <span id="show-label-descriptions-help" class="field-help">Show label descriptions in the autocomplete
-                list.</span>
+              <input id="show-label-descriptions" type="checkbox" aria-describedby="show-label-descriptions-help" />
+              <span id="show-label-descriptions-help" class="field-help">Show label descriptions in the dropdown.</span>
             </label>
             <ul id="labels-config-list" class="labels-config-list" role="list"></ul>
             <div class="config-list-save-row">
@@ -95,15 +89,11 @@
 
           <section class="card" aria-labelledby="section-decorations">
             <h2 class="settings__section-title" id="section-decorations">Decorations</h2>
-            <p class="field-help">Extra options after a label (e.g. <code>non-blocking</code>). Same controls as labels:
-              eye to hide, grip to reorder, top row + <strong>Add</strong>. Keys: lowercase letters, numbers,
-              hyphens (picker subtitles come from extension defaults per key, not edited here). Eye toggles save at once; use
-              <strong>Save</strong> for keys or order.</p>
             <label for="show-decoration-descriptions" class="checkbox-row">
               <input id="show-decoration-descriptions" type="checkbox"
                 aria-describedby="show-decoration-descriptions-help" />
               <span id="show-decoration-descriptions-help" class="field-help">Show decoration descriptions in the
-                autocomplete list.</span>
+                dropdown.</span>
             </label>
             <ul id="decorations-config-list" class="decorations-config-list" role="list"></ul>
             <div class="config-list-save-row">
@@ -121,14 +111,15 @@
             <h2 class="settings__section-title" id="section-debug">Debugging</h2>
             <label for="debug-mode" class="checkbox-row">
               <input id="debug-mode" type="checkbox" aria-describedby="debug-mode-help" />
-              <span id="debug-mode-help" class="field-help">Print extra messages in the browser console for debugging.</span>
+              <span id="debug-mode-help" class="field-help">Enable console logs for troubleshooting injection and editor
+                matching issues.</span>
             </label>
           </section>
 
           <section class="card" aria-labelledby="section-reset">
             <h2 class="settings__section-title" id="section-reset">Reset</h2>
             <div class="actions actions--inline">
-              <button id="reset" type="button" class="button button--danger">Restore defaults</button>
+              <button id="reset" type="button" class="button button--danger">Reset to defaults</button>
             </div>
           </section>
         </div>
