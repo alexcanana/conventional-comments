@@ -1,4 +1,23 @@
 (() => {
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => {
+      switch (ch) {
+        case '&':
+          return '&amp;';
+        case '<':
+          return '&lt;';
+        case '>':
+          return '&gt;';
+        case '"':
+          return '&quot;';
+        case "'":
+          return '&#39;';
+        default:
+          return ch;
+      }
+    });
+  }
+
   function ensureActiveItemVisible(dropdown) {
     const list = dropdown.querySelector('.gl-cc-list');
     const activeItem = dropdown.querySelector('.gl-cc-item.active');
@@ -67,12 +86,14 @@
 
     const listMarkup = items.map((item, index) => {
       const activeClass = index === nextActiveIndex ? ' active' : '';
+      const safeKey = escapeHtml(item.key);
+      const safeDescription = escapeHtml(item.description);
       const descriptionMarkup =
         showDescriptions === false
           ? ''
-          : `<span class="gl-cc-description">${item.description}</span>`;
-      return `<li class="gl-cc-item${activeClass}" data-index="${index}" data-key="${item.key}">
-        <span class="gl-cc-marker">${item.key}</span>
+          : `<span class="gl-cc-description">${safeDescription}</span>`;
+      return `<li class="gl-cc-item${activeClass}" data-index="${index}" data-key="${safeKey}">
+        <span class="gl-cc-marker">${safeKey}</span>
         ${descriptionMarkup}
       </li>`;
     }).join('');
@@ -137,13 +158,15 @@
       const selected = selectedDecorations.has(item.key);
       const selectedClass = selected ? ' selected' : '';
       const checked = selected ? ' checked' : '';
+      const safeKey = escapeHtml(item.key);
+      const safeDescription = escapeHtml(item.description);
       const descriptionMarkup =
         showDescriptions === false
           ? ''
-          : `<span class="gl-cc-description">${item.description}</span>`;
-      return `<li class="gl-cc-item${activeClass}${selectedClass}" data-index="${index}" data-key="${item.key}">
-        <input type="checkbox" class="gl-cc-checkbox" aria-label="${item.key}" tabindex="-1"${checked} />
-        <span class="gl-cc-marker">${item.key}</span>
+          : `<span class="gl-cc-description">${safeDescription}</span>`;
+      return `<li class="gl-cc-item${activeClass}${selectedClass}" data-index="${index}" data-key="${safeKey}">
+        <input type="checkbox" class="gl-cc-checkbox" aria-label="${safeKey}" tabindex="-1"${checked} />
+        <span class="gl-cc-marker">${safeKey}</span>
         ${descriptionMarkup}
       </li>`;
     }).join('');
