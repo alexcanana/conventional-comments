@@ -101,15 +101,17 @@ function initSettingsTabs() {
 const LABEL_KEY_RE = /^[a-z][a-z0-9-]*$/;
 
 const ICON_EYE_ON =
-  '<svg class="config-row__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>';
+  '<svg class="block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>';
 
 const ICON_EYE_OFF =
-  '<svg class="config-row__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>';
+  '<svg class="block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>';
 
 function syncVisibilityToggleButton(toggleBtn, enableInput, shownLabel, hiddenLabel) {
   const on = enableInput.checked;
   toggleBtn.setAttribute('aria-pressed', String(on));
   toggleBtn.setAttribute('aria-label', on ? shownLabel : hiddenLabel);
+  toggleBtn.classList.remove('text-slate-400', 'text-slate-500');
+  toggleBtn.classList.add(on ? 'text-slate-500' : 'text-slate-400');
   toggleBtn.innerHTML = on ? ICON_EYE_ON : ICON_EYE_OFF;
 }
 
@@ -244,14 +246,14 @@ function setSaveFeedback(el, message, type = 'success') {
     return;
   }
   el.textContent = message;
-  el.classList.remove('status--success', 'status--error');
+  el.classList.remove('text-green-700', 'text-red-700');
 
   if (type === 'error') {
-    el.classList.add('status--error');
+    el.classList.add('text-red-700');
     el.setAttribute('role', 'alert');
     el.setAttribute('aria-live', 'assertive');
   } else {
-    el.classList.add('status--success');
+    el.classList.add('text-green-700');
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
   }
@@ -313,13 +315,13 @@ function snapshotSavedSettingsFromEvaluation(s) {
 
 function setFieldError(field, errorElement, message) {
   if (message) {
-    field.classList.add('field--error');
+    field.classList.add('!border-red-700', '!ring-2', '!ring-red-700/15');
     field.setAttribute('aria-invalid', 'true');
     errorElement.textContent = message;
     return;
   }
 
-  field.classList.remove('field--error');
+  field.classList.remove('!border-red-700', '!ring-2', '!ring-red-700/15');
   field.removeAttribute('aria-invalid');
   errorElement.textContent = '';
 }
@@ -335,14 +337,14 @@ function setOriginsRowError(input, message) {
   const row = input.closest('.origins-list__item');
   const errEl = row?.querySelector('.origins-list__row-error');
   if (message) {
-    input.classList.add('field--error');
+    input.classList.add('!border-red-700', '!ring-2', '!ring-red-700/15');
     input.setAttribute('aria-invalid', 'true');
     if (errEl) {
       errEl.textContent = message;
     }
     return;
   }
-  input.classList.remove('field--error');
+  input.classList.remove('!border-red-700', '!ring-2', '!ring-red-700/15');
   input.removeAttribute('aria-invalid');
   if (errEl) {
     errEl.textContent = '';
@@ -354,7 +356,7 @@ function clearOriginsVisualErrors() {
     el.textContent = '';
   });
   originsList.querySelectorAll('.origins-list__input').forEach((input) => {
-    input.classList.remove('field--error');
+    input.classList.remove('!border-red-700', '!ring-2', '!ring-red-700/15');
     input.removeAttribute('aria-invalid');
   });
 }
@@ -482,15 +484,30 @@ function refreshOriginsListUi() {
 
 function createOriginRow(value = '', { template = false } = {}) {
   const item = document.createElement('li');
-  item.className = 'origins-list__item';
+  item.className = 'origins-list__item m-0 flex flex-col items-stretch';
   item.setAttribute('role', 'listitem');
   if (template) {
-    item.classList.add(LIST_TEMPLATE_CLASS);
+    item.classList.add(
+      LIST_TEMPLATE_CLASS,
+      'relative',
+      'mb-5',
+      'box-border',
+      'py-3',
+      "after:content-['']",
+      'after:absolute',
+      'after:left-3.5',
+      'after:right-3.5',
+      'after:-bottom-2.5',
+      'after:h-px',
+      'after:bg-slate-500/15'
+    );
+  } else {
+    item.classList.add('box-border', 'bg-transparent', 'border-0', 'rounded-none', 'py-1.5');
   }
 
   const input = document.createElement('input');
   input.type = 'text';
-  input.className = 'origins-list__input';
+  input.className = 'origins-list__input m-0 min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm leading-[1.45] text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200';
   input.setAttribute('spellcheck', 'false');
   input.setAttribute('placeholder', 'https://example.com');
   input.value = value;
@@ -502,7 +519,7 @@ function createOriginRow(value = '', { template = false } = {}) {
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
-  removeBtn.className = 'button button--danger button--small origins-list__remove';
+  removeBtn.className = 'button button--danger button--small origins-list__remove inline-flex h-10 w-10 min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-800 bg-red-700 p-0 text-base leading-none text-white hover:bg-red-800 disabled:opacity-45';
   removeBtn.setAttribute('aria-label', 'Remove origin');
   removeBtn.textContent = REMOVE_ROW_GLYPH;
 
@@ -514,7 +531,7 @@ function createOriginRow(value = '', { template = false } = {}) {
 
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
-  addBtn.className = 'button button--primary origins-list__add';
+  addBtn.className = 'button button--primary origins-list__add inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white hover:bg-blue-700 disabled:opacity-45';
   addBtn.textContent = 'Add';
   addBtn.setAttribute('aria-label', 'Add origin from this row');
   addBtn.addEventListener('click', () => {
@@ -555,21 +572,34 @@ function createOriginRow(value = '', { template = false } = {}) {
   });
 
   const controls = document.createElement('div');
-  controls.className = 'origins-list__controls';
+  controls.className = 'origins-list__controls relative flex shrink-0 items-start justify-end self-start';
+  if (template) {
+    controls.classList.add('w-auto', 'items-stretch', 'self-stretch');
+  } else {
+    controls.classList.add('w-[50px]');
+  }
   controls.appendChild(removeBtn);
   controls.appendChild(addBtn);
 
   const main = document.createElement('div');
-  main.className = 'origins-list__main';
+  main.className = 'origins-list__main min-w-0 flex-1';
   main.appendChild(input);
 
   const rowLine = document.createElement('div');
-  rowLine.className = 'origins-list__row-line';
+  rowLine.className = 'origins-list__row-line flex';
+  if (template) {
+    rowLine.classList.add('items-stretch', 'gap-0');
+    input.classList.add('rounded-l-lg', 'rounded-r-none', 'relative', 'z-0', 'focus:z-20');
+    addBtn.classList.add('-ml-px', 'rounded-l-none', 'rounded-r-lg', 'relative', 'z-0', 'focus-visible:z-20');
+  } else {
+    rowLine.classList.add('items-start', 'gap-2.5');
+  }
   rowLine.appendChild(main);
   rowLine.appendChild(controls);
 
   const rowError = document.createElement('p');
-  rowError.className = 'field-error field-error--row origins-list__row-error';
+  rowError.className =
+    'field-error field-error--row origins-list__row-error min-h-[1.2em] pt-2 text-[13px] text-red-700 empty:hidden';
   rowError.setAttribute('aria-live', 'polite');
 
   item.appendChild(rowLine);
@@ -657,14 +687,14 @@ function setKeyedRowFieldError(keyInput, errorRowSelector, message) {
   }
   const errEl = keyInput.closest('.config-field')?.querySelector(errorRowSelector);
   if (message) {
-    keyInput.classList.add('field--error');
+    keyInput.classList.add('!border-red-700', '!ring-2', '!ring-red-700/15');
     keyInput.setAttribute('aria-invalid', 'true');
     if (errEl) {
       errEl.textContent = message;
     }
     return;
   }
-  keyInput.classList.remove('field--error');
+  keyInput.classList.remove('!border-red-700', '!ring-2', '!ring-red-700/15');
   keyInput.removeAttribute('aria-invalid');
   if (errEl) {
     errEl.textContent = '';
@@ -680,7 +710,7 @@ function clearLabelsVisualErrors() {
     el.textContent = '';
   });
   labelsConfigList.querySelectorAll('.labels-config__key').forEach((el) => {
-    el.classList.remove('field--error');
+    el.classList.remove('!border-red-700', '!ring-2', '!ring-red-700/15');
     el.removeAttribute('aria-invalid');
   });
 }
@@ -700,7 +730,7 @@ function replaceDragGhostTextInputs(ghost) {
     const span = document.createElement('span');
     const keepClasses = input.className
       .split(/\s+/)
-      .filter((c) => c && c !== 'field--error');
+      .filter((c) => c && !['!border-red-700', '!ring-2', '!ring-red-700/15'].includes(c));
     span.className = [...keepClasses, 'config-row__ghost-input'].join(' ');
     const value = input.value;
     if (value) {
@@ -719,7 +749,8 @@ function createConfigRowLeadCell(template) {
     return null;
   }
   const dragHandle = document.createElement('span');
-  dragHandle.className = 'config-row__drag-handle';
+  dragHandle.className =
+    'config-row__drag-handle inline-flex h-10 w-10 min-h-10 min-w-10 items-center justify-center rounded-lg text-slate-400 cursor-grab active:cursor-grabbing select-none touch-none leading-none';
   dragHandle.draggable = true;
   dragHandle.setAttribute('aria-label', 'Reorder');
   dragHandle.setAttribute('title', 'Drag to reorder');
@@ -983,15 +1014,45 @@ function refreshLabelsListUi() {
 
 function createLabelConfigRow({ key = '', enabled = true, template = false } = {}) {
   const item = document.createElement('li');
-  item.className = 'labels-config__item';
+  item.className = 'labels-config__item box-border';
   item.setAttribute('role', 'listitem');
   if (template) {
-    item.classList.add(LIST_TEMPLATE_CLASS);
+    item.classList.add(
+      LIST_TEMPLATE_CLASS,
+      'grid',
+      'grid-cols-[minmax(0,1fr)_auto]',
+      'items-start',
+      'gap-0',
+      'relative',
+      'mb-5',
+      'px-3.5',
+      'py-3',
+      "after:content-['']",
+      'after:absolute',
+      'after:left-3.5',
+      'after:right-3.5',
+      'after:-bottom-2.5',
+      'after:h-px',
+      'after:bg-slate-500/15'
+    );
+  } else {
+    item.classList.add(
+      'grid',
+      'grid-cols-[2.5rem_minmax(0,1fr)_auto]',
+      'items-center',
+      'gap-2.5',
+      'px-3.5',
+      'py-3',
+      'rounded-xl',
+      'border',
+      'border-slate-200/80'
+    );
   }
 
   const keyInput = document.createElement('input');
   keyInput.type = 'text';
-  keyInput.className = 'labels-config__key';
+  keyInput.className =
+    'labels-config__key m-0 min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm leading-[1.45] text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200';
   keyInput.setAttribute('spellcheck', 'false');
   keyInput.setAttribute('placeholder', 'praise');
   keyInput.setAttribute('aria-label', 'Label key');
@@ -1002,14 +1063,15 @@ function createLabelConfigRow({ key = '', enabled = true, template = false } = {
   if (!template) {
     enableInput = document.createElement('input');
     enableInput.type = 'checkbox';
-    enableInput.className = 'labels-config__enabled visually-hidden';
+    enableInput.className = 'labels-config__enabled sr-only';
     enableInput.checked = Boolean(enabled);
     enableInput.setAttribute('tabindex', '-1');
     enableInput.setAttribute('aria-hidden', 'true');
 
     toggleBtn = document.createElement('button');
     toggleBtn.type = 'button';
-    toggleBtn.className = 'config-row__toggle';
+    toggleBtn.className =
+      'config-row__toggle inline-flex h-10 w-10 min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white p-0 text-slate-400 hover:border-slate-300';
     syncVisibilityToggleButton(
       toggleBtn,
       enableInput,
@@ -1041,7 +1103,8 @@ function createLabelConfigRow({ key = '', enabled = true, template = false } = {
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
-  removeBtn.className = 'button button--danger button--small labels-config__remove';
+  removeBtn.className =
+    'button button--danger button--small labels-config__remove inline-flex h-10 w-10 min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-800 bg-red-700 p-0 text-base leading-none text-white hover:bg-red-800 disabled:opacity-45';
   removeBtn.setAttribute('aria-label', 'Remove label');
   removeBtn.textContent = REMOVE_ROW_GLYPH;
 
@@ -1053,7 +1116,8 @@ function createLabelConfigRow({ key = '', enabled = true, template = false } = {
 
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
-  addBtn.className = 'button button--primary origins-list__add labels-config__add';
+  addBtn.className =
+    'button button--primary origins-list__add labels-config__add inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white hover:bg-blue-700 disabled:opacity-45';
   addBtn.textContent = 'Add';
   addBtn.setAttribute('aria-label', 'Add label from this row');
   addBtn.addEventListener('click', () => {
@@ -1093,7 +1157,10 @@ function createLabelConfigRow({ key = '', enabled = true, template = false } = {
   });
 
   const controls = document.createElement('div');
-  controls.className = 'config-row__actions labels-config__controls';
+  controls.className = 'config-row__actions labels-config__controls relative flex shrink-0 items-center justify-end gap-2';
+  if (!template) {
+    controls.classList.add('ml-3');
+  }
   if (!template) {
     controls.appendChild(enableInput);
     controls.appendChild(toggleBtn);
@@ -1102,12 +1169,18 @@ function createLabelConfigRow({ key = '', enabled = true, template = false } = {
   controls.appendChild(addBtn);
 
   const keyField = document.createElement('div');
-  keyField.className = 'config-field';
+  keyField.className = 'config-field min-w-0 flex flex-col items-stretch';
   const keyErr = document.createElement('p');
-  keyErr.className = 'field-error field-error--row labels-config__key-error';
+  keyErr.className =
+    'field-error field-error--row labels-config__key-error min-h-[1.2em] pt-2 text-[13px] text-red-700 empty:hidden';
   keyErr.setAttribute('aria-live', 'polite');
   keyField.appendChild(keyInput);
   keyField.appendChild(keyErr);
+
+  if (template) {
+    keyInput.classList.add('rounded-l-lg', 'rounded-r-none', 'relative', 'z-0', 'focus:z-20');
+    addBtn.classList.add('-ml-px', 'rounded-l-none', 'rounded-r-lg', 'relative', 'z-0', 'focus-visible:z-20');
+  }
 
   const lead = createConfigRowLeadCell(template);
   if (lead) {
@@ -1151,6 +1224,7 @@ function isTemplateKeyAddValid(keyInput, getExistingLowercaseKeys) {
 }
 
 function refreshKeyedConfigListUi(listRoot, itemClass, selectors, canAddFromTemplateKey) {
+  let visibleRowIndex = 0;
   listRoot.querySelectorAll(`.${itemClass}`).forEach((row) => {
     const keyInput = row.querySelector(selectors.keyInput);
     const removeBtn = row.querySelector(selectors.removeBtn);
@@ -1162,6 +1236,8 @@ function refreshKeyedConfigListUi(listRoot, itemClass, selectors, canAddFromTemp
       addBtn.hidden = false;
       addBtn.disabled = !keyInput || !canAddFromTemplateKey(keyInput);
     } else {
+      row.classList.toggle('bg-black/5', visibleRowIndex % 2 === 1);
+      visibleRowIndex += 1;
       removeBtn.hidden = false;
       removeBtn.disabled = false;
       addBtn.hidden = true;
@@ -1223,7 +1299,7 @@ function clearDecorationsVisualErrors() {
     el.textContent = '';
   });
   decorationsConfigList.querySelectorAll('.decorations-config__key').forEach((el) => {
-    el.classList.remove('field--error');
+    el.classList.remove('!border-red-700', '!ring-2', '!ring-red-700/15');
     el.removeAttribute('aria-invalid');
   });
 }
@@ -1254,15 +1330,45 @@ function refreshDecorationsListUi() {
 
 function createDecorationConfigRow({ key = '', enabled = true, template = false } = {}) {
   const item = document.createElement('li');
-  item.className = 'decorations-config__item';
+  item.className = 'decorations-config__item box-border';
   item.setAttribute('role', 'listitem');
   if (template) {
-    item.classList.add(LIST_TEMPLATE_CLASS);
+    item.classList.add(
+      LIST_TEMPLATE_CLASS,
+      'grid',
+      'grid-cols-[minmax(0,1fr)_auto]',
+      'items-start',
+      'gap-0',
+      'relative',
+      'mb-5',
+      'px-3.5',
+      'py-3',
+      "after:content-['']",
+      'after:absolute',
+      'after:left-3.5',
+      'after:right-3.5',
+      'after:-bottom-2.5',
+      'after:h-px',
+      'after:bg-slate-500/15'
+    );
+  } else {
+    item.classList.add(
+      'grid',
+      'grid-cols-[2.5rem_minmax(0,1fr)_auto]',
+      'items-center',
+      'gap-2.5',
+      'px-3.5',
+      'py-3',
+      'rounded-xl',
+      'border',
+      'border-slate-200/80'
+    );
   }
 
   const keyInput = document.createElement('input');
   keyInput.type = 'text';
-  keyInput.className = 'decorations-config__key';
+  keyInput.className =
+    'decorations-config__key m-0 min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm leading-[1.45] text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200';
   keyInput.setAttribute('spellcheck', 'false');
   keyInput.setAttribute('placeholder', 'non-blocking');
   keyInput.setAttribute('aria-label', 'Decoration key');
@@ -1273,14 +1379,15 @@ function createDecorationConfigRow({ key = '', enabled = true, template = false 
   if (!template) {
     enableInput = document.createElement('input');
     enableInput.type = 'checkbox';
-    enableInput.className = 'decorations-config__enabled visually-hidden';
+    enableInput.className = 'decorations-config__enabled sr-only';
     enableInput.checked = Boolean(enabled);
     enableInput.setAttribute('tabindex', '-1');
     enableInput.setAttribute('aria-hidden', 'true');
 
     toggleBtn = document.createElement('button');
     toggleBtn.type = 'button';
-    toggleBtn.className = 'config-row__toggle';
+    toggleBtn.className =
+      'config-row__toggle inline-flex h-10 w-10 min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white p-0 text-slate-400 hover:border-slate-300';
     syncVisibilityToggleButton(
       toggleBtn,
       enableInput,
@@ -1312,7 +1419,8 @@ function createDecorationConfigRow({ key = '', enabled = true, template = false 
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
-  removeBtn.className = 'button button--danger button--small decorations-config__remove';
+  removeBtn.className =
+    'button button--danger button--small decorations-config__remove inline-flex h-10 w-10 min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-800 bg-red-700 p-0 text-base leading-none text-white hover:bg-red-800 disabled:opacity-45';
   removeBtn.setAttribute('aria-label', 'Remove decoration');
   removeBtn.textContent = REMOVE_ROW_GLYPH;
 
@@ -1324,7 +1432,8 @@ function createDecorationConfigRow({ key = '', enabled = true, template = false 
 
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
-  addBtn.className = 'button button--primary origins-list__add decorations-config__add';
+  addBtn.className =
+    'button button--primary origins-list__add decorations-config__add inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-4 text-xs font-bold leading-tight text-white hover:bg-blue-700 disabled:opacity-45';
   addBtn.textContent = 'Add';
   addBtn.setAttribute('aria-label', 'Add decoration from this row');
   addBtn.addEventListener('click', () => {
@@ -1364,7 +1473,10 @@ function createDecorationConfigRow({ key = '', enabled = true, template = false 
   });
 
   const controls = document.createElement('div');
-  controls.className = 'config-row__actions decorations-config__controls';
+  controls.className = 'config-row__actions decorations-config__controls relative flex shrink-0 items-center justify-end gap-2';
+  if (!template) {
+    controls.classList.add('ml-3');
+  }
   if (!template) {
     controls.appendChild(enableInput);
     controls.appendChild(toggleBtn);
@@ -1373,9 +1485,15 @@ function createDecorationConfigRow({ key = '', enabled = true, template = false 
   controls.appendChild(addBtn);
 
   const keyField = document.createElement('div');
-  keyField.className = 'config-field';
+  keyField.className = 'config-field min-w-0 flex flex-col items-stretch';
   const keyErr = document.createElement('p');
-  keyErr.className = 'field-error field-error--row decorations-config__key-error';
+  keyErr.className =
+    'field-error field-error--row decorations-config__key-error min-h-[1.2em] pt-2 text-[13px] text-red-700 empty:hidden';
+  if (template) {
+    keyInput.classList.add('rounded-l-lg', 'rounded-r-none', 'relative', 'z-0', 'focus:z-20');
+    addBtn.classList.add('-ml-px', 'rounded-l-none', 'rounded-r-lg', 'relative', 'z-0', 'focus-visible:z-20');
+  }
+
   keyErr.setAttribute('aria-live', 'polite');
   keyField.appendChild(keyInput);
   keyField.appendChild(keyErr);
