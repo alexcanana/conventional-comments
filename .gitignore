@@ -1,0 +1,8 @@
+dist/
+node_modules/
+test-results/
+tests/.build/
+tests/.e2e-ext/
+.superpowers/
+.DS_Store
+.claude/settings.local.json

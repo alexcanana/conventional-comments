@@ -1,0 +1,130 @@
+.pop {
+  width: 340px;
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: var(--font-mono);
+}
+.pop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px 6px 16px;
+  background: var(--cc-surface);
+  border-bottom: 1px solid var(--cc-border);
+}
+.pop .opt-logo {
+  font-size: 13px;
+}
+.pop-gear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--cc-dim);
+  cursor: pointer;
+}
+.pop-gear:hover {
+  background: rgba(31, 35, 40, 0.06);
+  color: var(--cc-text);
+}
+.pop-gear .pi {
+  font-size: 17px;
+}
+.pop-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 16px 34px;
+}
+.pop-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cc-dim);
+  font-size: 12px;
+}
+.pop-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cc-subtle);
+  flex: none;
+}
+.pop-status.is-on .pop-dot {
+  background: var(--cc-green);
+}
+.pop-status.is-unavailable .pop-dot {
+  background: var(--cc-red);
+}
+.pop-site {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-radius: 8px;
+  font-size: 14px;
+}
+.pop-site-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.pop-site-label .pi {
+  color: var(--cc-accent);
+  font-size: 16px;
+}
+.pop-wave {
+  width: 100%;
+  height: 14px;
+  margin: 20px 0;
+  opacity: 0.25;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12' viewBox='0 0 40 12'%3E%3Cpath d='M0 6 Q10 0 20 6 T40 6' fill='none' stroke='%230969da' stroke-width='1.6'/%3E%3C/svg%3E")
+    repeat-x center / 40px 12px;
+}
+.pop-field {
+  display: flex;
+  flex-direction: column;
+}
+.pop .opt-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.pop .opt-label .pi {
+  color: var(--cc-accent);
+  font-size: 15px;
+}
+.pop-desc {
+  color: var(--cc-dim);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.pop-trigger-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.pop-trigger-row .opt-input {
+  flex: 1;
+}
+.pop-saved {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--cc-green);
+  font-size: 13px;
+  margin-top: 8px;
+}
+.pop-saved .pi {
+  font-size: 15px;
+}

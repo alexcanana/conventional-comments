@@ -1,0 +1,543 @@
+@import 'primeicons/primeicons.css';
+
+@font-face {
+  font-family: 'Exo 2';
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/exo2.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('../assets/fonts/jetbrains-mono.woff2') format('woff2');
+}
+
+:root {
+  --cc-bg: #fff;
+  --cc-surface: #f6f8fa;
+  --cc-border: #d0d7de;
+  --cc-border-light: #bbc0c7;
+  --cc-accent: #0969da;
+  --cc-green: #1a7f37;
+  --cc-text: #1f2328;
+  --cc-dim: #656d76;
+  --cc-subtle: #8b949e;
+  --cc-red: color-mix(in srgb, #dc2626 82%, #0969da 18%);
+  --font-mono: 'JetBrains Mono', Menlo, Consolas, monospace;
+  --font-display: 'Exo 2', Inter, sans-serif;
+}
+*,
+:before,
+:after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.opt-logo {
+  font-family: var(--font-display);
+  color: var(--cc-accent);
+  letter-spacing: 0.05em;
+  font-size: 16px;
+  font-weight: 700;
+}
+.opt-sep {
+  color: var(--cc-border-light);
+}
+.opt-shell {
+  background: var(--cc-bg);
+  min-height: 100vh;
+  color: var(--cc-text);
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+.opt-header {
+  background: var(--cc-surface);
+  border-bottom: 1px solid var(--cc-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.opt-header-inner {
+  align-items: center;
+  gap: 10px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+}
+.opt-title {
+  font-family: var(--font-display);
+  color: var(--cc-text);
+  letter-spacing: 0.03em;
+  font-size: 18px;
+  font-weight: 600;
+}
+.opt-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px;
+}
+.opt-section {
+  margin-bottom: 40px;
+}
+.opt-section-title {
+  font-family: var(--font-display);
+  color: var(--cc-text);
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+}
+.opt-section-title i {
+  color: var(--cc-accent);
+  font-size: 18px;
+}
+.opt-section-desc {
+  color: var(--cc-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.opt-section-desc code,
+.opt-hint code {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.opt-label {
+  color: var(--cc-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  display: block;
+}
+.opt-input {
+  background: var(--cc-bg);
+  border: 1px solid var(--cc-border);
+  width: 100%;
+  color: var(--cc-text);
+  font-family: var(--font-mono);
+  border-radius: 8px;
+  outline: none;
+  padding: 9px 12px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+/* These fields are PrimeVue InputText, which carries `.p-inputtext`. PrimeVue's
+   `.p-inputtext:enabled:focus` (specificity 0,3,0, injected after this sheet)
+   would otherwise beat our `.opt-input` focus/validation rules, so mark them
+   important to keep the page's Ocean-Blue focus ring and red/green states. */
+.opt-input:focus {
+  border-color: var(--cc-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-accent) 18%, transparent) !important;
+}
+.opt-input.is-error {
+  border-color: var(--cc-red) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-red) 15%, transparent) !important;
+}
+.opt-input.is-ok {
+  border-color: var(--cc-green) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-green) 14%, transparent) !important;
+}
+.opt-error-msg {
+  color: var(--cc-red);
+  font-size: 14px;
+  margin-top: 7px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.opt-error-msg .pi {
+  font-size: 16px;
+}
+/* These sizing modifiers sit on PrimeVue InputText (`.p-inputtext`). That base
+   class has equal specificity and is injected after this sheet, so it would win
+   on padding/font and make inputs taller than the adjacent buttons. Compound the
+   selectors (0,2,0) so our intended sizing — which matches the .opt-btn height —
+   wins. */
+.opt-input.opt-input-sm {
+  padding: 6px 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.opt-input.opt-input-md {
+  padding: 7px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.opt-hint {
+  color: var(--cc-subtle);
+  font-size: 14px;
+  margin-top: 8px;
+}
+.opt-btn {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  color: var(--cc-text);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  border-radius: 8px;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 13px;
+  font-size: 14px;
+  line-height: 1.4;
+  display: inline-flex;
+}
+.opt-btn i {
+  font-size: 16px;
+}
+.opt-btn.primary {
+  color: var(--cc-accent);
+  background: color-mix(in srgb, var(--cc-accent) 10%, #fff);
+  border-color: color-mix(in srgb, var(--cc-accent) 30%, #fff);
+}
+.opt-btn.loading,
+.opt-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}
+.opt-btn.danger {
+  color: var(--cc-red);
+  border-color: color-mix(in srgb, var(--cc-red) 38%, #fff);
+}
+.opt-btn.danger-fill {
+  color: var(--cc-bg);
+  background: var(--cc-red);
+  border-color: var(--cc-red);
+  font-weight: 600;
+}
+.opt-btn.sm {
+  gap: 6px;
+  padding: 4px 9px;
+  font-size: 12px;
+}
+.opt-btn.sm i {
+  font-size: 13px;
+}
+.opt-btn-icon {
+  color: var(--cc-dim);
+  cursor: pointer;
+  background: 0 0;
+  border: 1px solid #0000;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 16px;
+}
+.opt-btn-icon:disabled {
+  opacity: 0.32;
+  cursor: default;
+  pointer-events: none;
+}
+.opt-btn-icon.ok {
+  color: var(--cc-green);
+}
+.opt-btn-icon.ok:hover {
+  background: color-mix(in srgb, var(--cc-green) 10%, #fff);
+}
+
+.opt-btn,
+.opt-btn-icon {
+  transition:
+    background-color 0.13s ease,
+    border-color 0.13s ease,
+    color 0.13s ease,
+    box-shadow 0.13s ease;
+}
+.opt-btn:hover {
+  background: color-mix(in srgb, var(--cc-border) 14%, var(--cc-surface));
+  border-color: var(--cc-border-light);
+}
+.opt-btn.primary:hover {
+  background: color-mix(in srgb, var(--cc-accent) 18%, #fff);
+  border-color: color-mix(in srgb, var(--cc-accent) 45%, #fff);
+}
+.opt-btn.danger:hover {
+  background: color-mix(in srgb, var(--cc-red) 9%, #fff);
+  border-color: color-mix(in srgb, var(--cc-red) 50%, #fff);
+}
+.opt-btn.danger-fill:hover {
+  background: color-mix(in srgb, var(--cc-red) 88%, #000);
+  border-color: color-mix(in srgb, var(--cc-red) 88%, #000);
+}
+.opt-btn:active {
+  transform: translateY(1px);
+}
+.opt-btn:focus-visible {
+  outline: none;
+  border-color: var(--cc-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-accent) 22%, transparent);
+}
+.opt-btn.danger:focus-visible,
+.opt-btn.danger-fill:focus-visible {
+  border-color: var(--cc-red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-red) 22%, transparent);
+}
+.opt-btn-icon:hover {
+  background: var(--cc-surface);
+}
+.opt-btn-icon:hover:not(.ok) {
+  color: var(--cc-text);
+}
+.opt-btn-icon:active {
+  transform: translateY(1px);
+}
+.opt-btn-icon:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-accent) 22%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .opt-btn,
+  .opt-btn-icon {
+    transition: none;
+  }
+  .opt-btn:active,
+  .opt-btn-icon:active {
+    transform: none;
+  }
+}
+.opt-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+}
+.opt-inline-form {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+.opt-inline-form-actions {
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  display: flex;
+}
+.opt-input-row {
+  gap: 8px;
+  display: flex;
+}
+.opt-input-row .opt-input {
+  flex: 1;
+}
+.opt-site-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.opt-site-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cc-subtle);
+  flex: none;
+}
+.opt-site-dot.is-on {
+  background: var(--cc-green);
+}
+.opt-dt .p-toggleswitch {
+  transform: scale(0.82);
+}
+.opt-table-domain {
+  color: var(--cc-text);
+  white-space: nowrap;
+  font-weight: 500;
+}
+.opt-desc-cell {
+  color: var(--cc-dim);
+  font-size: 14px;
+}
+.opt-trunc {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.opt-dt .p-datatable-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.opt-dt .p-datatable-reorderable-row-handle {
+  vertical-align: middle;
+}
+.opt-dt {
+  border: 1px solid var(--cc-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.opt-dt .p-datatable-header-cell {
+  background: var(--cc-surface);
+  color: var(--cc-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--cc-border);
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.opt-dt .p-datatable-tbody > tr {
+  background: var(--cc-bg);
+}
+.opt-dt .p-datatable-tbody > tr > td {
+  border-bottom: 1px solid var(--cc-border);
+  padding: 14px;
+  font-size: 14px;
+}
+.opt-dt .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+.opt-dt .p-datatable-tbody > tr:has(.opt-input) > td {
+  vertical-align: top;
+}
+.opt-form-row {
+  display: flex;
+  gap: 12px;
+}
+.opt-table-actions {
+  gap: 2px;
+  display: flex;
+}
+.opt-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 28px;
+}
+.opt-toggle-inline {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.opt-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--cc-text);
+}
+.opt-danger {
+  border: 1.5px solid color-mix(in srgb, var(--cc-red) 50%, var(--cc-border));
+  background: color-mix(in srgb, var(--cc-red) 5%, #fff);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-top: 32px;
+}
+.opt-danger-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cc-red);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.opt-danger-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+.opt-danger-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--cc-text);
+}
+.opt-danger-desc {
+  font-size: 14px;
+  color: var(--cc-dim);
+  margin-top: 3px;
+}
+.eye.off {
+  color: var(--cc-subtle);
+}
+tr.is-hidden .opt-name,
+tr.is-hidden .opt-desc-cell {
+  opacity: 0.38;
+}
+.opt-modal-title {
+  font-family: var(--font-display);
+  color: var(--cc-text);
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+}
+.opt-modal-title i {
+  color: var(--cc-red);
+  font-size: 21px;
+}
+.opt-modal-desc {
+  color: var(--cc-dim);
+  margin-bottom: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.opt-modal-actions {
+  justify-content: flex-end;
+  gap: 8px;
+  display: flex;
+}
+.opt-toast.p-toast-message-success,
+.opt-toast.p-toast-message-error {
+  border-left-width: 4px;
+}
+.opt-toast .p-toast-message-content {
+  align-items: flex-start;
+}
+.opt-toast .p-toast-message-icon,
+.opt-toast .p-toast-message-content > :last-child {
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.opt-toast.p-toast-message-success .p-toast-message-icon {
+  color: var(--cc-green);
+}
+.opt-toast.p-toast-message-error .p-toast-message-icon {
+  color: var(--cc-red);
+}
+.opt-section + .opt-section::before {
+  content: '';
+  display: block;
+  width: 80%;
+  height: 16px;
+  /* Top >= the previous section's 40px bottom margin (they collapse), so the
+     visible gap above the wave matches the gap below it. */
+  margin: 64px auto;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12' viewBox='0 0 40 12'%3E%3Cpath d='M0 6 Q10 0 20 6 T40 6' fill='none' stroke='%230969da' stroke-width='1.6'/%3E%3C/svg%3E")
+    repeat-x center / 40px 12px;
+  opacity: 0.2;
+}
+.opt-main > .opt-section:last-child::before {
+  content: none;
+}
+.opt-main > .opt-section:last-child {
+  margin-top: 64px;
+}

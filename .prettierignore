@@ -1,0 +1,9 @@
+dist
+node_modules
+manifests
+tests/.build
+tests/.e2e-ext
+.claude
+.github
+bun.lock
+*.md

@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Scroll fixture</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #scroller {
+        height: 150px;
+        overflow: auto;
+        border: 1px solid #000;
+      }
+      #spacer-top {
+        height: 80px;
+      }
+      #spacer-bottom {
+        height: 600px;
+      }
+      textarea {
+        width: 400px;
+        height: 100px;
+        font: 14px/18px monospace;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      window.__ccPlatform = 'github';
+    </script>
+    <div id="scroller">
+      <div id="spacer-top"></div>
+      <textarea name="comment[body]"></textarea>
+      <div id="spacer-bottom"></div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build bundle
+        run: bun run build
+
+      - name: Package Chromium zip
+        run: |
+          version=$(node -p "require('./manifests/manifest.base.json').version")
+          (cd dist/chromium && zip -r "../conventional-comments-chromium-v${version}.zip" . -x '*.DS_Store' '.DS_Store')
+
+      - name: Package Firefox zip
+        run: |
+          version=$(node -p "require('./manifests/manifest.base.json').version")
+          (cd dist/firefox-mv3 && zip -r "../conventional-comments-firefox-v${version}.zip" . -x '*.DS_Store' '.DS_Store')
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node -p "require('./manifests/manifest.base.json').version")
+          tag="v${version}"
+          if git rev-parse "${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists; bump the version to publish a new release. Skipping."
+            exit 0
+          fi
+          git tag "${tag}"
+          git push origin "${tag}"
+          gh release create "${tag}" --title "${tag}" --notes "Automated release" \
+            dist/conventional-comments-chromium-v*.zip \
+            dist/conventional-comments-firefox-v*.zip
